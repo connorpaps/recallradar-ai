@@ -78,6 +78,20 @@ Good companies to use in a demo:
 - `MetroMart Grocery`
 - `Oak & Ember Steakhouse`
 
+## Screenshots
+
+### Dashboard
+
+![RecallRadar AI dashboard](docs/screenshots/dashboard.png)
+
+### Recall case file
+
+![RecallRadar AI recall case file](docs/screenshots/recall-case-file.png)
+
+### Review queue
+
+![RecallRadar AI review queue](docs/screenshots/review-queue.png)
+
 ## Production Readiness Pass
 
 Completed before deployment:
