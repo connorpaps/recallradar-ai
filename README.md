@@ -1,81 +1,115 @@
 # RecallRadar AI
 
-RecallRadar AI is a multimodal food-safety intelligence platform that helps grocery stores, restaurants, campus dining teams, food banks, and small retailers identify recalled products in their inventory before they reach customers.
+RecallRadar AI is a food-safety operations app that helps a team answer a simple question quickly: "Do we have recalled product in our inventory right now?"
 
-The app ingests public FDA recall data, accepts local inventory uploads, matches recalls against inventory items, explains why products may be affected, and gives staff a review workflow for confirming, dismissing, or resolving recall risks.
+It pulls live food recall data from openFDA, lets a user load a fictional company inventory, runs explainable recall-to-inventory matching, and gives staff a clean review workflow for confirming, dismissing, or resolving possible exposure.
 
-## Why This Project Exists
+Live deployment:
 
-Food recalls are operationally messy. Public notices often use inconsistent product names, vague distribution regions, incomplete UPCs, and long free-text descriptions. Smaller organizations may track inventory through spreadsheets, supplier invoices, receipts, and staff knowledge instead of enterprise recall systems.
+- Frontend: `https://recallradar-ai.vercel.app`
+- Backend API: `https://recallradar-api.onrender.com`
 
-RecallRadar AI turns that fragmented information into an evidence-based workflow:
+## What It Does
 
-1. Import recent food recalls.
-2. Upload local inventory.
-3. Score likely recall matches.
-4. Explain the evidence behind each match.
-5. Let a human reviewer confirm, dismiss, or resolve the case.
+Most public recall notices are messy to work with in real life. Product names vary, UPCs are incomplete, lot details are inconsistent, and smaller organizations often manage stock with spreadsheets or lightweight internal tools instead of enterprise systems.
 
-## Portfolio Goal
+RecallRadar AI turns that into a practical workflow:
 
-This project is designed to stand out as a 2025 software engineering portfolio project by combining:
+1. Pull the latest FDA recall data.
+2. Load a company inventory profile.
+3. Match recalled products against local stock.
+4. Show why each match was flagged.
+5. Let a human reviewer decide what is real and what is noise.
 
-- Real-world public APIs.
-- Backend data modeling.
-- AI-assisted matching.
-- Human-in-the-loop review.
-- Production-minded UX.
-- Auditability and confidence scoring.
-- Clear V1/V2 architecture.
+## Why This Feels Real
 
-The first version focuses on a complete end-to-end workflow instead of trying to integrate every possible AI model immediately.
+This is not just a static dashboard with fake charts.
 
-## MVP Scope
+- Recalls come from the live openFDA food enforcement API.
+- The app auto-refreshes live recall data on launch when the last successful refresh is stale.
+- Matching is explainable and reviewable instead of being a black-box score.
+- Inventory stays intentionally fictional so the demo is repeatable and safe to show.
+- The deployed app uses a real hosted frontend, backend, and Postgres database.
 
-V1 includes:
+## Current Product Flow
 
-- openFDA food recall ingestion.
-- Inventory CSV upload.
-- Recall-to-inventory matching.
-- Match confidence scoring.
-- Human-readable match explanations.
-- Recall inbox.
-- Recall detail/action page.
-- Review queue.
-- Basic dashboard metrics.
-- Seed data for demos.
+For the user-facing experience:
 
-V2 adds:
+- Recall data is live openFDA data only.
+- Demo recall seeding is disabled in normal product use.
+- Inventory comes from fictional company profiles or CSV upload.
+- Matching defaults to live openFDA recalls.
 
-- Persisted operational exposure scores separate from match confidence.
-- Explainable exposure factors for quantity, recall class, location criticality, supplier overlap, and review status.
-- Richer location-aware demo inventory.
-- A meaningful Risk Radar where ring, sector, color, and size encode exposure data.
+That means the core flow is:
 
-V1 intentionally excludes:
+1. Open the app.
+2. Let live FDA recalls load automatically.
+3. Choose a company inventory.
+4. Click `Run matching`.
+5. Review the dashboard, recall queue, and evidence.
 
-- Shelf image analysis.
-- Invoice/document question answering.
-- USDA FSIS integration.
-- Barcode scanning.
-- Multi-location permissions.
-- Email/SMS alerting.
-- Time-series forecasting.
+## Main Features
 
-Those are planned V2 extensions.
+- Live openFDA food recall import.
+- Auto-refresh status with throttling.
+- Fictional demo company inventory profiles.
+- Inventory CSV upload support.
+- Explainable recall-to-inventory matching.
+- Match confidence and review states.
+- Dashboard with exposure and workload views.
+- Recall case file and review queue workflow.
+- Production-minded deployment on Vercel + Render + Postgres.
 
-## Recommended Stack
+## Deployed Demo Walkthrough
 
-- Frontend: Next.js, TypeScript, Tailwind CSS.
-- Backend: FastAPI, Python.
-- Database: PostgreSQL.
-- ORM: SQLAlchemy or SQLModel.
-- Migrations: Alembic.
-- Background jobs: FastAPI background tasks for V1, Redis/RQ or Celery later.
-- AI/matching: deterministic scoring plus semantic similarity.
-- Vector search: pgvector in V2.
-- Testing: pytest for backend, Playwright for frontend flows.
-- Deployment: Docker Compose locally, Render/Railway/Fly.io or cloud containers later.
+Use this flow when showing the project:
+
+1. Open `https://recallradar-ai.vercel.app`.
+2. Point out that live FDA recalls auto-refresh on launch when needed.
+3. Choose a company from the top command bar.
+4. Click `Run matching`.
+5. Show the dashboard counts and radar.
+6. Open the recalls worklist and pick a case.
+7. Open the review queue and confirm, dismiss, resolve, or reopen a match.
+
+Good companies to use in a demo:
+
+- `Campus Table Dining`
+- `MetroMart Grocery`
+- `Oak & Ember Steakhouse`
+
+## Production Readiness Pass
+
+Completed before deployment:
+
+- Deployed frontend to Vercel.
+- Deployed backend to Render.
+- Moved production persistence to Postgres.
+- Added import status tracking in the database.
+- Added `GET /recalls/imports/status`.
+- Throttled auto-refresh to once every 30 minutes unless manually forced.
+- Moved backend CORS to environment configuration.
+- Kept demo recall seeding disabled by default.
+- Verified live public smoke flow on deployed URLs.
+
+Public smoke test completed on July 24, 2026:
+
+- Frontend responded successfully.
+- Backend health endpoint returned `ok`.
+- Live import status endpoint returned a successful openFDA refresh.
+- Public company inventory seeding worked.
+- Public matching run worked and created matches.
+- Deployed homepage reflected live refresh state and selected company.
+
+## Stack
+
+- Frontend: Next.js, TypeScript, Tailwind CSS
+- Backend: FastAPI, Python
+- Database: PostgreSQL
+- ORM: SQLAlchemy
+- Migrations: Alembic
+- Testing: pytest, Playwright
+- Hosting: Vercel + Render
 
 ## Local Development
 
@@ -83,16 +117,6 @@ Start PostgreSQL:
 
 ```bash
 docker compose up -d
-```
-
-For a clean production-like validation pass:
-
-```bash
-docker compose down -v
-docker compose up -d
-cd backend
-$env:DATABASE_URL="postgresql+asyncpg://recallradar:recallradar@localhost:5432/recallradar"
-.venv/Scripts/alembic upgrade head
 ```
 
 Install backend dependencies:
@@ -103,7 +127,14 @@ python -m venv .venv
 .venv/Scripts/python -m pip install -r requirements.txt
 ```
 
-Start the backend:
+Run migrations:
+
+```bash
+cd backend
+.venv/Scripts/alembic upgrade head
+```
+
+Start backend:
 
 ```bash
 cd backend
@@ -117,7 +148,7 @@ cd frontend
 npm install
 ```
 
-Start the frontend:
+Start frontend:
 
 ```bash
 cd frontend
@@ -130,165 +161,68 @@ Open:
 http://localhost:3000
 ```
 
-Recommended demo sequence:
+## Environment
 
-1. Open the app; live openFDA recall data refreshes automatically.
-2. Pick a company inventory profile from the top command bar.
-3. Click `Run matching`.
-4. Open the review queue.
-5. Confirm, dismiss, or resolve matches.
-
-## Deployment
-
-Production deployment target:
-
-- Frontend: Vercel, root directory `frontend`.
-- Backend: Render web service from this repo.
-- Database: Render managed PostgreSQL.
-
-Render backend:
+Backend:
 
 ```text
-Build command: cd backend && pip install -r requirements.txt
-Start command: cd backend && alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port $PORT
-```
-
-Render backend env:
-
-```text
-DATABASE_URL=<Render Postgres internal database URL>
-CORS_ALLOWED_ORIGINS=<Vercel frontend URL>
+DATABASE_URL=<database url>
+CORS_ALLOWED_ORIGINS=<comma separated frontend origins>
 OPENFDA_REFRESH_MINUTES=30
+OPENFDA_API_KEY=<optional>
 ENABLE_DEMO_RECALL_SEED=false
-AI_PROVIDER=local
-ENABLE_SEMANTIC_MATCHING=false
-ENABLE_AI_SUMMARIES=false
 ```
 
-Vercel frontend env:
+Frontend:
 
 ```text
-NEXT_PUBLIC_API_BASE_URL=<Render backend URL>
+NEXT_PUBLIC_API_BASE_URL=<backend base url>
 ```
 
-Final deployed smoke:
+## Testing
 
-1. Open the Vercel URL.
-2. Confirm FDA refresh status appears in the command bar.
-3. Select a company in the command bar.
-4. Click `Run matching`.
-5. Confirm the radar and review queue populate.
-
-Run checks:
+Backend:
 
 ```bash
 cd backend
 .venv/Scripts/python -m pytest
-
-cd ../frontend
-npm run build
-
-# Requires backend and frontend dev servers to already be running.
-npm run test:e2e
 ```
 
-Apply migrations when using an existing local database:
+Frontend build:
 
 ```bash
-cd backend
-.venv/Scripts/alembic upgrade head
+cd frontend
+npm run build
+```
+
+Frontend e2e:
+
+```bash
+cd frontend
+npm run test:e2e
 ```
 
 ## Project Structure
 
-Recommended structure:
-
 ```text
-RecallRadar_Project/
-  frontend/
-  backend/
-  docs/
-  docker-compose.yml
-  README.md
-  .env.example
+frontend/
+backend/
+docs/
+docker-compose.yml
+render.yaml
+README.md
 ```
-
-## Core User Flow
-
-1. User opens the dashboard.
-2. App shows active recalls and unresolved match counts.
-3. User imports recent openFDA recalls.
-4. User uploads an inventory CSV.
-5. System scores recall-to-inventory matches.
-6. User opens a recall detail page.
-7. App shows affected product details, matched inventory, confidence, and evidence.
-8. User marks each match as `confirmed`, `dismissed`, or `resolved`.
-9. Dashboard and review queue update.
-
-## Hugging Face Task Roadmap
-
-V1 uses AI-ready architecture and can support:
-
-- Text classification.
-- Token classification.
-- Summarization.
-- Sentence similarity.
-- Text ranking.
-- Question answering.
-
-V2 can add:
-
-- Document question answering.
-- Image-to-text.
-- Visual question answering.
-- Object detection.
-- Image feature extraction.
-- Translation.
-- Automatic speech recognition.
-
-Implemented AI extension points:
-
-- Feature-flagged Hugging Face semantic similarity for recall-to-inventory matching.
-- Feature-flagged Hugging Face recall summaries.
-- Deterministic fallback when flags are disabled, token is absent, or the provider fails.
-- Model activity recorded in `model_runs`.
-
-## Demo Script
-
-1. Open the Imports console.
-2. Let live openFDA data auto-refresh, or click `Live FDA import`.
-3. Pick a demo company inventory profile such as `MetroMart Grocery` or `Oak & Ember Steakhouse`.
-4. Click `Run matching`.
-5. Open the dashboard to inspect exposure.
-6. Open the review queue and confirm, dismiss, resolve, or reopen a case.
-7. Use the recalls filters to narrow live openFDA records by class and exposure.
-
-## Screenshots
-
-- [Dashboard](docs/screenshots/dashboard.png)
-- [Recall case file](docs/screenshots/recall-case-file.png)
-- [Review queue](docs/screenshots/review-queue.png)
-- [Imports console](docs/screenshots/imports-console.png)
-- [Inventory company profiles](docs/screenshots/inventory-companies.png)
-- [Live/demo recall filters](docs/screenshots/recalls-live-demo.png)
 
 ## Documentation
 
-- [MVP_SPEC.md](docs/MVP_SPEC.md)
-- [DATA_MODEL.md](docs/DATA_MODEL.md)
-- [API_DESIGN.md](docs/API_DESIGN.md)
-- [AI_MATCHING_SPEC.md](docs/AI_MATCHING_SPEC.md)
-- [DEVELOPMENT_PLAN.md](docs/DEVELOPMENT_PLAN.md)
-- [UX_SPEC.md](docs/UX_SPEC.md)
-- [TEST_PLAN.md](docs/TEST_PLAN.md)
-- [DEPLOYMENT.md](docs/DEPLOYMENT.md)
-- [AGENT_SKILLS.md](docs/AGENT_SKILLS.md)
-- [ARCHITECTURE.md](docs/ARCHITECTURE.md)
+- [Deployment notes](docs/DEPLOYMENT.md)
+- [Architecture](docs/ARCHITECTURE.md)
+- [API design](docs/API_DESIGN.md)
+- [Data model](docs/DATA_MODEL.md)
+- [AI matching spec](docs/AI_MATCHING_SPEC.md)
+- [UX spec](docs/UX_SPEC.md)
+- [Test plan](docs/TEST_PLAN.md)
 
 ## Resume-Ready Summary
 
-Built a food-safety intelligence platform that ingests FDA recall data, matches recalls against uploaded inventory, generates explainable confidence scores, and provides an auditable human review workflow for resolving potentially affected products.
-
-- Validated a production-like Docker/PostgreSQL workflow with Alembic migrations and async SQLAlchemy.
-- Added Playwright e2e coverage for core routes, CSS loading, and human review actions.
-- Integrated optional Hugging Face inference for semantic matching and summaries with safe deterministic fallbacks.
+Built and deployed a food-safety intelligence platform that ingests live FDA recall data, matches recalls against inventory, explains evidence behind potential exposure, and supports human-in-the-loop review with a production-style full-stack architecture.
