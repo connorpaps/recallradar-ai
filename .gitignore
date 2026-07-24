@@ -1,0 +1,17 @@
+.env
+.agents/
+.checkpoints/
+.cursor/
+node_modules/
+.next/
+__pycache__/
+.pytest_cache/
+.venv/
+backend/.venv/
+backend/recallradar.db
+frontend/playwright-report/
+frontend/test-results/
+frontend/tmp-*.png
+*.pyc
+*.log
+storage/

@@ -1,0 +1,4 @@
+product_name,brand,upc,lot_code,quantity,location,location_type,public_serving,location_criticality,region,supplier,purchase_date
+Fresh Valley Organic Spinach,Fresh Valley,123456789012,L2408,48,Hospital Cafeteria - Cold Storage,hospital,true,critical,Northeast,Northline Foods,2026-06-28
+Golden Grain Honey Oat Granola,Golden Grain,887766554433,GG0612,80,Downtown Grocery - Aisle 3,grocery_floor,true,high,Northeast,Grocery Direct,2026-06-20
+Bright Dairy vanilla yogurt six pack,Bright Dairy,555666777888,BD620,120,Warehouse - Cold Storage,storage,false,storage,Midwest,DairyLink,2026-05-22

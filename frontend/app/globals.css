@@ -1,0 +1,41 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+body {
+  margin: 0;
+  background:
+    linear-gradient(135deg, rgba(17, 26, 22, 0.08) 0%, transparent 28%),
+    linear-gradient(180deg, #f8f5ec 0%, #eef4ee 52%, #f7f8f1 100%);
+  min-height: 100vh;
+}
+
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center gap-2 rounded-xl bg-ink px-4 py-2.5 text-sm font-black text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-moss hover:shadow-md disabled:cursor-not-allowed disabled:opacity-60;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-black text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:border-slate-300 hover:bg-field hover:shadow-md disabled:cursor-not-allowed disabled:opacity-60;
+  }
+
+  .panel {
+    @apply rounded-3xl border border-slate-200/80 bg-white shadow-soft;
+  }
+
+  .glass-panel {
+    @apply rounded-3xl border border-slate-200/80 bg-white shadow-soft;
+  }
+
+  .metric-card {
+    @apply rounded-3xl border border-slate-200/80 bg-white p-5 shadow-soft transition hover:-translate-y-1 hover:shadow-lg;
+  }
+
+  .eyebrow {
+    @apply text-xs font-black uppercase tracking-[0.22em] text-moss;
+  }
+}
