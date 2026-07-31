@@ -13,6 +13,13 @@ class Settings(BaseSettings):
     openfda_api_key: str | None = None
     openfda_food_enforcement_url: str = "https://api.fda.gov/food/enforcement.json"
     openfda_refresh_minutes: int = 30
+    max_upload_mb: int = 2
+    max_csv_rows: int = 5000
+    max_upload_errors: int = 25
+    rate_limit_window_seconds: int = 60
+    rate_limit_read_per_window: int = 120
+    rate_limit_action_per_window: int = 12
+    rate_limit_upload_per_window: int = 5
     ai_provider: str = "local"
     hf_api_token: str | None = None
     hf_provider: str = "hf-inference"
@@ -30,6 +37,18 @@ class Settings(BaseSettings):
         if PORTFOLIO_FRONTEND_ORIGIN not in configured:
             configured.append(PORTFOLIO_FRONTEND_ORIGIN)
         return configured
+
+    @property
+    def max_upload_bytes(self) -> int:
+        return self.max_upload_mb * 1024 * 1024
+
+    @property
+    def rate_limit_per_window(self) -> dict[str, int]:
+        return {
+            "read": self.rate_limit_read_per_window,
+            "action": self.rate_limit_action_per_window,
+            "upload": self.rate_limit_upload_per_window,
+        }
 
     @property
     def async_database_url(self) -> str:

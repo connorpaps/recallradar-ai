@@ -1,9 +1,12 @@
+import re
 import uuid
+from pathlib import Path
 
 from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile
 from sqlalchemy import func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.config import get_settings
 from app.db.models import InventoryItem
 from app.db.session import get_session
 from app.schemas import DemoCompanyOut, InventoryItemOut, InventoryUploadResponse, SeedCompanyRequest, SeedCompanyResponse, SeedSummary
@@ -31,7 +34,7 @@ async def seed_demo_company_inventory(
     try:
         result = await seed_company_inventory(session, request.company_id)
     except LookupError as exc:
-        raise HTTPException(status_code=404, detail=str(exc)) from exc
+        raise HTTPException(status_code=404, detail="Demo company not found") from exc
     return SeedCompanyResponse(**result)
 
 
@@ -40,10 +43,24 @@ async def upload_inventory(
     file: UploadFile = File(...),
     session: AsyncSession = Depends(get_session),
 ) -> InventoryUploadResponse:
-    if not file.filename.lower().endswith(".csv"):
+    filename = Path(file.filename or "inventory.csv").name
+    filename = re.sub(r"[^A-Za-z0-9._-]+", "_", filename).strip("._") or "inventory.csv"
+    if not filename.lower().endswith(".csv"):
         raise HTTPException(status_code=400, detail="Inventory upload must be a CSV file")
-    content = await file.read()
-    result = await import_inventory_csv(session, file.filename, content)
+
+    settings = get_settings()
+    chunks: list[bytes] = []
+    total_bytes = 0
+    while chunk := await file.read(64 * 1024):
+        total_bytes += len(chunk)
+        if total_bytes > settings.max_upload_bytes:
+            raise HTTPException(status_code=413, detail="Inventory upload is too large")
+        chunks.append(chunk)
+
+    try:
+        result = await import_inventory_csv(session, filename, b"".join(chunks))
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
     return InventoryUploadResponse(**result)
 
 

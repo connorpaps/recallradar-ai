@@ -14,7 +14,9 @@ export type InventoryItem = {
   supplier: string | null;
   purchase_date: string | null;
   active: boolean;
-  raw_row: Record<string, unknown>;
+  inventory_source: string | null;
+  demo_company_id: string | null;
+  demo_company_name: string | null;
 };
 
 export type DemoCompany = {

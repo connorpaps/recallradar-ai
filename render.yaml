@@ -18,6 +18,20 @@ services:
         sync: false
       - key: OPENFDA_REFRESH_MINUTES
         value: 30
+      - key: MAX_UPLOAD_MB
+        value: 2
+      - key: MAX_CSV_ROWS
+        value: 5000
+      - key: MAX_UPLOAD_ERRORS
+        value: 25
+      - key: RATE_LIMIT_WINDOW_SECONDS
+        value: 60
+      - key: RATE_LIMIT_READ_PER_WINDOW
+        value: 120
+      - key: RATE_LIMIT_ACTION_PER_WINDOW
+        value: 12
+      - key: RATE_LIMIT_UPLOAD_PER_WINDOW
+        value: 5
       - key: ENABLE_DEMO_RECALL_SEED
         value: false
       - key: AI_PROVIDER

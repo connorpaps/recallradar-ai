@@ -34,6 +34,13 @@ Key variables:
 - `HF_API_TOKEN`
 - `ENABLE_SEMANTIC_MATCHING`
 - `ENABLE_AI_SUMMARIES`
+- `MAX_UPLOAD_MB`
+- `MAX_CSV_ROWS`
+- `MAX_UPLOAD_ERRORS`
+- `RATE_LIMIT_WINDOW_SECONDS`
+- `RATE_LIMIT_READ_PER_WINDOW`
+- `RATE_LIMIT_ACTION_PER_WINDOW`
+- `RATE_LIMIT_UPLOAD_PER_WINDOW`
 
 PostgreSQL local validation:
 
@@ -104,12 +111,13 @@ Before production use, add:
 - Authentication.
 - Organization or tenant isolation.
 - File scanning.
-- Rate limiting.
 - Background job queue.
 - Robust logging.
 - Monitoring and alerting.
 - Data retention controls.
 - Formal safety disclaimers.
+
+The public demo now includes best-effort in-memory rate limits, bounded CSV uploads, safe production error responses, security headers, and disabled API documentation when `APP_ENV=production`. The limiter is intentionally dependency-free and resets when the free-tier process restarts; it is not a substitute for authentication or distributed abuse protection.
 
 ## 6. Portfolio Demo Flow
 

@@ -13,7 +13,7 @@ const steps = [
 
 export default async function ImportsPage() {
   const [companies, inventory, importStatus] = await Promise.all([getDemoCompanies(), getInventory(), getImportStatus()]);
-  const currentCompany = inventory.items.find((item) => item.raw_row?.demo_company_id)?.raw_row;
+  const currentCompany = inventory.items.find((item) => item.demo_company_id);
 
   return (
     <div className="flex flex-col gap-6">
@@ -22,8 +22,8 @@ export default async function ImportsPage() {
         title="Live data operations"
         description="A guided setup console for live openFDA recall imports, company inventory, and exposure matching."
       />
-      <ActionBar companies={companies} selectedCompanyId={typeof currentCompany?.demo_company_id === "string" ? currentCompany.demo_company_id : null} importStatus={importStatus} />
-      <CompanySelector companies={companies} selectedCompanyId={typeof currentCompany?.demo_company_id === "string" ? currentCompany.demo_company_id : null} />
+      <ActionBar companies={companies} selectedCompanyId={currentCompany?.demo_company_id ?? null} importStatus={importStatus} />
+      <CompanySelector companies={companies} selectedCompanyId={currentCompany?.demo_company_id ?? null} />
       <section className="grid gap-4 lg:grid-cols-4">
         {steps.map((step, index) => {
           const Icon = step.icon;

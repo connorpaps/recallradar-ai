@@ -30,7 +30,7 @@ async def import_recalls(
     try:
         result = await import_openfda_recalls(session, request.limit, request.since, request.force)
     except Exception as exc:
-        raise HTTPException(status_code=502, detail=f"openFDA import failed: {exc}") from exc
+        raise HTTPException(status_code=502, detail="openFDA import failed. Please try again later.") from exc
     return ImportSummary(**result)
 
 

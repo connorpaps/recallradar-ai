@@ -1,3 +1,4 @@
+import logging
 from datetime import date, datetime, timedelta, timezone
 
 import httpx
@@ -9,6 +10,8 @@ from app.ai.provider import ai_provider
 from app.db.models import AuditEvent, ImportStatus, Recall
 from app.services.model_runs import record_ai_result
 from app.services.text import normalize_brand, normalize_text, parse_openfda_date, summarize_recall
+
+logger = logging.getLogger(__name__)
 
 
 def build_openfda_params(limit: int, since: date | None) -> dict[str, str | int]:
@@ -65,7 +68,7 @@ def serialize_openfda_import_status(status: ImportStatus) -> dict:
         "imported": status.imported,
         "updated": status.updated,
         "skipped": status.skipped,
-        "error": status.error,
+        "error": "The latest openFDA refresh failed." if status.error else None,
         "last_attempt_at": status.last_attempt_at,
         "last_success_at": status.last_success_at,
         "refresh_after_minutes": get_settings().openfda_refresh_minutes,
@@ -88,8 +91,9 @@ async def import_openfda_recalls(session: AsyncSession, limit: int, since: date 
     try:
         records = await fetch_openfda_recalls(limit, since)
     except Exception as exc:
+        logger.exception("openFDA import failed")
         status.status = "failed"
-        status.error = str(exc)
+        status.error = "openFDA refresh failed"
         status.last_attempt_at = datetime.now(timezone.utc)
         await session.commit()
         raise

@@ -3,7 +3,7 @@ from datetime import date, datetime
 from decimal import Decimal
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 
 class ApiError(BaseModel):
@@ -82,8 +82,30 @@ class InventoryItemOut(BaseModel):
     supplier: str | None
     purchase_date: date | None
     active: bool
-    raw_row: dict[str, Any] = Field(default_factory=dict)
+    inventory_source: str | None = None
+    demo_company_id: str | None = None
+    demo_company_name: str | None = None
     model_config = ConfigDict(from_attributes=True)
+
+    @model_validator(mode="before")
+    @classmethod
+    def add_safe_inventory_metadata(cls, value: Any) -> Any:
+        if isinstance(value, dict):
+            data = dict(value)
+            raw_row = data.get("raw_row", {})
+        else:
+            raw_row = getattr(value, "raw_row", {})
+            data = {field: getattr(value, field, None) for field in (
+                "id", "product_name", "brand", "upc", "lot_code", "quantity", "unit",
+                "location", "location_type", "location_criticality", "public_serving", "region",
+                "supplier", "purchase_date", "active",
+            )}
+        if not isinstance(raw_row, dict):
+            raw_row = {}
+        data["inventory_source"] = data.get("inventory_source") or raw_row.get("inventory_source")
+        data["demo_company_id"] = data.get("demo_company_id") or raw_row.get("demo_company_id")
+        data["demo_company_name"] = data.get("demo_company_name") or raw_row.get("demo_company_name")
+        return data
 
 
 class DemoCompanyOut(BaseModel):
@@ -97,7 +119,7 @@ class DemoCompanyOut(BaseModel):
 
 
 class SeedCompanyRequest(BaseModel):
-    company_id: str
+    company_id: str = Field(min_length=1, max_length=80)
 
 
 class SeedCompanyResponse(BaseModel):
@@ -180,7 +202,7 @@ class MatchRunRequest(BaseModel):
     recall_id: uuid.UUID | None = None
     inventory_upload_id: uuid.UUID | None = None
     min_score: float = Field(default=0.35, ge=0, le=1)
-    recall_source: str = "openfda"
+    recall_source: str = Field(default="openfda", min_length=1, max_length=40)
 
 
 class MatchRunResponse(BaseModel):
@@ -190,9 +212,9 @@ class MatchRunResponse(BaseModel):
 
 
 class MatchStatusRequest(BaseModel):
-    status: str
-    note: str | None = None
-    reviewer_name: str | None = "Demo User"
+    status: str = Field(min_length=1, max_length=40)
+    note: str | None = Field(default=None, max_length=1000)
+    reviewer_name: str | None = Field(default="Demo User", max_length=120)
 
 
 class MatchStatusResponse(BaseModel):

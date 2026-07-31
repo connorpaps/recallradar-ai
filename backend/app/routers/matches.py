@@ -65,7 +65,7 @@ async def patch_match_status(
     try:
         match = await update_match_status(session, match_id, request.status, request.note, request.reviewer_name)
     except LookupError as exc:
-        raise HTTPException(status_code=404, detail=str(exc)) from exc
+        raise HTTPException(status_code=404, detail="Match not found") from exc
     except ValueError as exc:
-        raise HTTPException(status_code=400, detail=str(exc)) from exc
+        raise HTTPException(status_code=400, detail="Unsupported match status") from exc
     return MatchStatusResponse(id=match.id, status=match.status, reviewed_at=match.reviewed_at)

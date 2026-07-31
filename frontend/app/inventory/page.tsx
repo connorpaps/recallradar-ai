@@ -8,7 +8,7 @@ export default async function InventoryPage() {
   const [inventory, companies] = await Promise.all([getInventory(), getDemoCompanies()]);
   const locations = new Set(inventory.items.map((item) => item.location).filter(Boolean)).size;
   const suppliers = new Set(inventory.items.map((item) => item.supplier).filter(Boolean)).size;
-  const currentCompany = inventory.items.find((item) => item.raw_row?.demo_company_id)?.raw_row;
+  const currentCompany = inventory.items.find((item) => item.demo_company_id);
 
   return (
     <div className="flex flex-col gap-6">
@@ -32,7 +32,7 @@ export default async function InventoryPage() {
           </div>
         </div>
       </CommandHeader>
-      <CompanySelector companies={companies} selectedCompanyId={typeof currentCompany?.demo_company_id === "string" ? currentCompany.demo_company_id : null} />
+      <CompanySelector companies={companies} selectedCompanyId={currentCompany?.demo_company_id ?? null} />
       <InventoryUpload />
       <div className="panel overflow-hidden">
         <div className="border-b border-slate-200 bg-field px-5 py-4">
@@ -52,7 +52,7 @@ export default async function InventoryPage() {
               <div className="font-black">{item.product_name}</div>
               <div className="mt-1 text-xs font-semibold text-slate-500">{item.upc ? `UPC ${item.upc}` : "No UPC recorded"} {item.lot_code ? `- Lot ${item.lot_code}` : ""}</div>
               <div className="mt-2 inline-flex rounded-full border border-slate-200 bg-field px-2 py-0.5 text-[0.65rem] font-black uppercase tracking-wide text-slate-500">
-                {item.raw_row?.inventory_source === "demo_company" ? item.raw_row.demo_company_name as string : "Uploaded inventory"}
+                {item.inventory_source === "demo_company" ? item.demo_company_name ?? "Demo company inventory" : "Uploaded inventory"}
               </div>
             </div>
             <div className="text-slate-600 md:col-span-2">{item.brand ?? "Unknown"}</div>

@@ -106,6 +106,8 @@ Completed before deployment:
 - Added a free GitHub Actions health check every 10 minutes to reduce Render Free cold starts.
 - Moved backend CORS to environment configuration.
 - Kept demo recall seeding disabled by default.
+- Added best-effort in-memory rate limits and bounded CSV uploads for the public no-login demo.
+- Added safe production error responses, security headers, and disabled API docs in production.
 - Verified live public smoke flow on deployed URLs.
 
 Public smoke test completed on July 24, 2026:
@@ -187,6 +189,12 @@ CORS_ALLOWED_ORIGINS=<comma separated frontend origins>
 OPENFDA_REFRESH_MINUTES=30
 OPENFDA_API_KEY=<optional>
 ENABLE_DEMO_RECALL_SEED=false
+MAX_UPLOAD_MB=2
+MAX_CSV_ROWS=5000
+RATE_LIMIT_WINDOW_SECONDS=60
+RATE_LIMIT_READ_PER_WINDOW=120
+RATE_LIMIT_ACTION_PER_WINDOW=12
+RATE_LIMIT_UPLOAD_PER_WINDOW=5
 ```
 
 Frontend:

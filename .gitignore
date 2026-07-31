@@ -15,3 +15,15 @@ frontend/tmp-*.png
 *.pyc
 *.log
 storage/
+
+# Local-only planning, prompt, and progress materials
+HANDOFF.md
+RecallRadar_AI_Technical_Document.md
+app_template/
+CivicSignal_AI_Technical_Document.md
+/docs/AGENT_SKILLS.md
+/docs/DEVELOPMENT_PLAN.md
+/docs/UI_REDESIGN_OPTIONS.md
+/docs/screenshots/imports-console.png
+/docs/screenshots/inventory-companies.png
+/docs/screenshots/recalls-live-demo.png
