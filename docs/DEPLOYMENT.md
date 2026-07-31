@@ -81,6 +81,7 @@ Start command: cd backend && alembic upgrade head && uvicorn app.main:app --host
 Backend environment:
 
 ```text
+APP_ENV=production
 DATABASE_URL=<Render Postgres internal database URL>
 CORS_ALLOWED_ORIGINS=<comma-separated allowed origins>
 OPENFDA_REFRESH_MINUTES=30

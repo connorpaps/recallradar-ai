@@ -184,6 +184,7 @@ http://localhost:3000
 Backend:
 
 ```text
+APP_ENV=production
 DATABASE_URL=<database url>
 CORS_ALLOWED_ORIGINS=<comma separated frontend origins>
 OPENFDA_REFRESH_MINUTES=30

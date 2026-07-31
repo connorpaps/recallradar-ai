@@ -49,7 +49,24 @@ export async function getDemoCompanies(): Promise<DemoCompany[]> {
 }
 
 export async function getImportStatus(): Promise<ImportStatus> {
-  return request<ImportStatus>("/recalls/imports/status");
+  try {
+    return await request<ImportStatus>("/recalls/imports/status");
+  } catch {
+    // Import status is supplemental; a cold or temporarily unavailable API
+    // should not replace the recruiter-facing page with the error boundary.
+    return {
+      source: "openfda",
+      status: "idle",
+      imported: 0,
+      updated: 0,
+      skipped: 0,
+      error: "Live refresh status is temporarily unavailable.",
+      last_attempt_at: null,
+      last_success_at: null,
+      refresh_after_minutes: 30,
+      should_refresh: false,
+    };
+  }
 }
 
 export async function postJson<T>(path: string, body: Record<string, unknown> = {}): Promise<T> {
