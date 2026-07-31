@@ -75,10 +75,20 @@ Backend environment:
 
 ```text
 DATABASE_URL=<Render Postgres internal database URL>
-CORS_ALLOWED_ORIGINS=<Vercel frontend URL>
+CORS_ALLOWED_ORIGINS=<comma-separated allowed origins>
 OPENFDA_REFRESH_MINUTES=30
 ENABLE_DEMO_RECALL_SEED=false
 ```
+
+`backend/app/config.py` always includes the deployed portfolio origin (`https://recallradar-ai.vercel.app`) in the allowed CORS origins, while still honoring additional local or custom origins from `CORS_ALLOWED_ORIGINS`. This keeps the public demo usable if the Render environment variable is missing or only contains local origins.
+
+Free-tier warm-up:
+
+- `.github/workflows/keep-render-warm.yml` sends a read-only `GET /health` request every 10 minutes.
+- This is intended to reduce Render Free sleep cold starts without changing application data.
+- GitHub scheduled workflows are best effort and can be delayed or disabled after long repository inactivity.
+- Keeping a Render Free service warm consumes nearly the full monthly free instance-hour allowance, so this is a zero-cost workaround rather than a guaranteed hosting solution.
+- The workflow can also be started manually from GitHub Actions.
 
 Vercel frontend:
 

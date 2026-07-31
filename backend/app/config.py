@@ -3,6 +3,9 @@ from functools import lru_cache
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
+PORTFOLIO_FRONTEND_ORIGIN = "https://recallradar-ai.vercel.app"
+
+
 class Settings(BaseSettings):
     app_env: str = "development"
     database_url: str = "sqlite+aiosqlite:///./recallradar.db"
@@ -23,7 +26,10 @@ class Settings(BaseSettings):
 
     @property
     def cors_origins(self) -> list[str]:
-        return [origin.strip() for origin in self.cors_allowed_origins.split(",") if origin.strip()]
+        configured = [origin.strip() for origin in self.cors_allowed_origins.split(",") if origin.strip()]
+        if PORTFOLIO_FRONTEND_ORIGIN not in configured:
+            configured.append(PORTFOLIO_FRONTEND_ORIGIN)
+        return configured
 
     @property
     def async_database_url(self) -> str:

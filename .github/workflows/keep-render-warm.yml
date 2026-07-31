@@ -1,0 +1,20 @@
+name: Keep Render API warm
+
+on:
+  schedule:
+    # Render Free services sleep after inactivity; run safely before the 15-minute window.
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  health-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Ping backend health endpoint
+        run: >-
+          curl --fail --silent --show-error --location
+          --max-time 45
+          https://recallradar-api.onrender.com/health

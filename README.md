@@ -59,6 +59,7 @@ That means the core flow is:
 - Dashboard with exposure and workload views.
 - Recall case file and review queue workflow.
 - Production-minded deployment on Vercel + Render + Postgres.
+- Free-tier Render warm-up workflow with a read-only scheduled health check.
 
 ## Deployed Demo Walkthrough
 
@@ -102,6 +103,7 @@ Completed before deployment:
 - Added import status tracking in the database.
 - Added `GET /recalls/imports/status`.
 - Throttled auto-refresh to once every 30 minutes unless manually forced.
+- Added a free GitHub Actions health check every 10 minutes to reduce Render Free cold starts.
 - Moved backend CORS to environment configuration.
 - Kept demo recall seeding disabled by default.
 - Verified live public smoke flow on deployed URLs.
