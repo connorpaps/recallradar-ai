@@ -1,4 +1,5 @@
 from functools import lru_cache
+from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -52,11 +53,20 @@ class Settings(BaseSettings):
 
     @property
     def async_database_url(self) -> str:
-        if self.database_url.startswith("postgres://"):
-            return self.database_url.replace("postgres://", "postgresql+asyncpg://", 1)
-        if self.database_url.startswith("postgresql://"):
-            return self.database_url.replace("postgresql://", "postgresql+asyncpg://", 1)
-        return self.database_url
+        if not self.database_url.startswith(("postgres://", "postgresql://")):
+            return self.database_url
+
+        url = self.database_url.replace("postgres://", "postgresql+asyncpg://", 1)
+        url = url.replace("postgresql://", "postgresql+asyncpg://", 1)
+        parsed = urlsplit(url)
+        query = [(key, value) for key, value in parse_qsl(parsed.query, keep_blank_values=True) if key != "sslmode"]
+        return urlunsplit(parsed._replace(query=urlencode(query)))
+
+    @property
+    def async_connect_args(self) -> dict[str, bool]:
+        if self.database_url.startswith(("postgres://", "postgresql://")):
+            return {"ssl": True}
+        return {}
 
 
 @lru_cache

@@ -128,6 +128,8 @@ The local release candidate was verified with backend tests, Ruff, frontend lint
 
 For long-term availability, read the [maintenance guide](docs/MAINTENANCE.md). The keep-warm workflow reduces Render cold starts, but free Render Postgres databases expire after 30 days and GitHub can disable scheduled workflows after 60 days without repository activity. A paid or external persistent database and an independent uptime monitor are required for an unattended hosted demo over multiple months.
 
+For the recommended free hardening path, follow [Free Hosting Hardening](docs/HOSTING_HARDENING.md) to move persistence to a non-expiring free PostgreSQL provider and add independent uptime monitoring.
+
 ## Stack
 
 - Frontend: Next.js, TypeScript, Tailwind CSS
@@ -259,6 +261,7 @@ README.md
 - [Deployment notes](docs/DEPLOYMENT.md)
 - [Getting started](docs/GETTING_STARTED.md)
 - [Maintenance and longevity](docs/MAINTENANCE.md)
+- [Free hosting hardening](docs/HOSTING_HARDENING.md)
 - [Architecture](docs/ARCHITECTURE.md)
 - [API design](docs/API_DESIGN.md)
 - [Data model](docs/DATA_MODEL.md)
