@@ -35,7 +35,7 @@ This is not just a static dashboard with fake charts.
 
 ## AI and Hugging Face Integration
 
-The project was designed around practical Hugging Face inference tasks rather than adding a model as decoration. The release path is deterministic first, with an optional Hugging Face semantic signal available when configured:
+The matching layer supports optional Hugging Face inference where semantic evidence is useful. The release path remains deterministic first, with an optional Hugging Face signal available when configured:
 
 - **Feature Extraction:** generate embeddings for recall and inventory text.
 - **Sentence Similarity:** compare those embeddings with cosine similarity.
@@ -55,7 +55,7 @@ The hosted Portfolio Demo disables external model calls so its results remain re
 | Document Question Answering and Visual Document Retrieval | Read invoices, packing slips, and recall notices | Roadmap |
 | Image-to-Text, Object Detection, and Image Feature Extraction | Analyze labels, shelf photos, and package similarity | Roadmap |
 
-The project does not claim to implement the full Hugging Face task catalog. It applies a small, relevant set of NLP tasks to a concrete operations problem, with multimodal extensions identified as future work.
+The current scope is intentionally focused on a small, relevant set of NLP tasks. Multimodal extensions are identified as future work rather than presented as completed capabilities.
 
 ## Data modes and product flow
 
