@@ -125,9 +125,9 @@ npm run test:e2e
 Seed data should include:
 
 - At least 10 recalls.
-- At least 40 inventory items.
+- At least 24 inventory items in the deterministic MetroMart fixture.
 - At least 3 known high-confidence matches.
-- At least 5 medium-confidence matches.
+- At least 3 known medium-confidence matches.
 - Several unrelated items.
 - Messy names and missing UPCs.
 

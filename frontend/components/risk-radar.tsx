@@ -27,7 +27,7 @@ function nodeStyle(match: RecallMatch) {
   };
 }
 
-export function RiskRadar({ matches, totalReviews }: { matches: RecallMatch[]; totalReviews: number }) {
+export function RiskRadar({ matches, totalReviews, source = "openfda" }: { matches: RecallMatch[]; totalReviews: number; source?: "openfda" | "demo" }) {
   const exposure = matches.length ? Math.max(...matches.map((match) => Number(match.exposure_score))) : 0;
 
   return (
@@ -50,7 +50,7 @@ export function RiskRadar({ matches, totalReviews }: { matches: RecallMatch[]; t
           <div className="text-xs font-bold text-slate-500">max exposure</div>
         </div>
       </div>
-      {matches.slice(0, 6).map((match, index) => (
+      {matches.slice(0, 6).map((match) => (
         <div
           key={match.id}
           className="absolute z-10 -translate-x-1/2 -translate-y-1/2"
@@ -89,8 +89,8 @@ export function RiskRadar({ matches, totalReviews }: { matches: RecallMatch[]; t
           <div className="text-xs font-bold text-slate-500">open reviews</div>
         </div>
         <div className="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm">
-          <div className="text-lg font-black">Live</div>
-          <div className="text-xs font-bold text-slate-500">live FDA</div>
+          <div className="text-lg font-black">{source === "demo" ? "Demo" : "Live"}</div>
+          <div className="text-xs font-bold text-slate-500">{source === "demo" ? "synthetic fixture" : "live FDA"}</div>
         </div>
       </div>
     </div>

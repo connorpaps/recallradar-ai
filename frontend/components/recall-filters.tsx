@@ -6,6 +6,7 @@ const filters = {
   source: [
     ["all", "All live recalls"],
     ["live", "Live openFDA"],
+    ["demo", "Portfolio Demo"],
   ],
   classification: [
     ["all", "All classes"],
@@ -25,10 +26,13 @@ export function RecallFilters() {
   const searchParams = useSearchParams();
 
   function setFilter(key: string, value: string) {
-    const params = new URLSearchParams(searchParams.toString());
+    const params = new URLSearchParams(window.location.search);
     if (value === "all") params.delete(key);
     else params.set(key, value);
-    router.push(`/recalls${params.toString() ? `?${params.toString()}` : ""}`);
+    const nextUrl = `/recalls${params.toString() ? `?${params.toString()}` : ""}`;
+    window.history.pushState({}, "", nextUrl);
+    window.dispatchEvent(new Event("recallradar:url-change"));
+    router.refresh();
   }
 
   return (

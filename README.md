@@ -2,12 +2,14 @@
 
 RecallRadar AI is a food-safety operations app that helps a team answer a simple question quickly: "Do we have recalled product in our inventory right now?"
 
-It pulls live food recall data from openFDA, lets a user load a fictional company inventory, runs explainable recall-to-inventory matching, and gives staff a clean review workflow for confirming, dismissing, or resolving possible exposure.
+It pulls live food recall data from openFDA, provides a deterministic Portfolio Demo mode, lets a user load fictional company inventory, runs explainable recall-to-inventory matching, and gives staff a clean review workflow for confirming, dismissing, or resolving possible exposure.
 
 Live deployment:
 
 - Frontend: `https://recallradar-ai.vercel.app`
 - Backend API: `https://recallradar-api.onrender.com`
+
+> **Safety boundary:** This is a no-login, single-workspace portfolio MVP. Use the hosted instance with synthetic demo data only. Do not upload real customer inventory or rely on it for regulatory action until authentication, tenant isolation, access control, retention, and production monitoring are added.
 
 ## What It Does
 
@@ -31,22 +33,32 @@ This is not just a static dashboard with fake charts.
 - Inventory stays intentionally fictional so the demo is repeatable and safe to show.
 - The deployed app uses a real hosted frontend, backend, and Postgres database.
 
-## Current Product Flow
+## Data modes and product flow
 
 For the user-facing experience:
 
-- Recall data is live openFDA data only.
-- Demo recall seeding is disabled in normal product use.
+- Live FDA mode uses public openFDA data and labels weak matches as possible candidates.
+- Portfolio Demo mode uses bundled synthetic recalls and inventory with repeatable labeled results.
 - Inventory comes from fictional company profiles or CSV upload.
-- Matching defaults to live openFDA recalls.
+- CSV upload validates and stores rows first; matching is an explicit next step.
+- Matching uses a release threshold of `0.50` to avoid surfacing weak lexical coincidences.
 
-That means the core flow is:
+Live FDA flow:
 
 1. Open the app.
 2. Let live FDA recalls load automatically.
 3. Choose a company inventory.
 4. Click `Run matching`.
 5. Review the dashboard, recall queue, and evidence.
+
+Portfolio Demo flow:
+
+1. Open the app.
+2. Choose `Portfolio demo` in the command bar.
+3. Show the deterministic five high-confidence and three medium-confidence examples.
+4. Open the review queue and inspect the evidence trail.
+
+The modes remain visibly separate. Portfolio Demo is not live FDA data.
 
 ## Main Features
 
@@ -55,6 +67,8 @@ That means the core flow is:
 - Fictional demo company inventory profiles.
 - Inventory CSV upload support.
 - Explainable recall-to-inventory matching.
+- Deterministic Portfolio Demo mode with labeled evaluation fixtures.
+- Repeatable precision/recall evaluation harness.
 - Match confidence and review states.
 - Dashboard with exposure and workload views.
 - Recall case file and review queue workflow.
@@ -66,12 +80,12 @@ That means the core flow is:
 Use this flow when showing the project:
 
 1. Open `https://recallradar-ai.vercel.app`.
-2. Point out that live FDA recalls auto-refresh on launch when needed.
-3. Choose a company from the top command bar.
-4. Click `Run matching`.
-5. Show the dashboard counts and radar.
-6. Open the recalls worklist and pick a case.
-7. Open the review queue and confirm, dismiss, resolve, or reopen a match.
+2. Choose `Portfolio demo` for the deterministic walkthrough.
+3. Show the five high-confidence and three medium-confidence examples.
+4. Explain that match confidence and operational exposure are separate signals.
+5. Open the recalls worklist and pick a case.
+6. Open the review queue and confirm, dismiss, resolve, or reopen a match.
+7. Optionally switch back to Live FDA mode and explain why real source data is noisier.
 
 Good companies to use in a demo:
 
@@ -108,16 +122,9 @@ Completed before deployment:
 - Kept demo recall seeding disabled by default.
 - Added best-effort in-memory rate limits and bounded CSV uploads for the public no-login demo.
 - Added safe production error responses, security headers, and disabled API docs in production.
-- Verified live public smoke flow on deployed URLs.
+- Added a read-only smoke script; rerun it immediately before claiming hosted availability.
 
-Public smoke test completed on July 24, 2026:
-
-- Frontend responded successfully.
-- Backend health endpoint returned `ok`.
-- Live import status endpoint returned a successful openFDA refresh.
-- Public company inventory seeding worked.
-- Public matching run worked and created matches.
-- Deployed homepage reflected live refresh state and selected company.
+The local release candidate was verified with backend tests, Ruff, frontend lint/build, Playwright browser coverage, and the deterministic matching evaluator. Hosted availability remains an operational check, not a permanent claim. Run `python scripts/smoke.py --api <api-url> --frontend <frontend-url>` before a public demonstration.
 
 ## Stack
 
@@ -211,13 +218,16 @@ Backend:
 ```bash
 cd backend
 .venv/Scripts/python -m pytest
+.venv/Scripts/ruff check app tests scripts
+.venv/Scripts/python -m scripts.evaluate_matching
 ```
 
 Frontend build:
 
 ```bash
 cd frontend
-npm run build
+npm run lint
+NEXT_PUBLIC_API_BASE_URL=http://127.0.0.1:8100 npm run build
 ```
 
 Frontend e2e:
@@ -226,6 +236,8 @@ Frontend e2e:
 cd frontend
 npm run test:e2e
 ```
+
+See [the portfolio release guide](docs/PORTFOLIO_RELEASE.md) and [matching evaluation](docs/MATCHING_EVALUATION.md) for the release gate, demo script, measured metrics, and production limitations.
 
 ## Project Structure
 

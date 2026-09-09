@@ -5,10 +5,19 @@ from sqlalchemy import func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
+from app.config import get_settings
 from app.db.models import AuditEvent, Recall, RecallMatch
 from app.db.session import get_session
-from app.schemas import ImportOpenFdaRequest, ImportStatusOut, ImportSummary, PaginatedRecalls, RecallDetail, RecallListItem, RecallMatchOut, SeedSummary
-from app.config import get_settings
+from app.schemas import (
+    ImportOpenFdaRequest,
+    ImportStatusOut,
+    ImportSummary,
+    PaginatedRecalls,
+    RecallDetail,
+    RecallListItem,
+    RecallMatchOut,
+    SeedSummary,
+)
 from app.services.openfda import get_openfda_import_status, import_openfda_recalls, serialize_openfda_import_status
 from app.services.seed import seed_recalls
 
@@ -51,15 +60,14 @@ async def list_recalls(
     session: AsyncSession = Depends(get_session),
 ) -> PaginatedRecalls:
     settings = get_settings()
+    if source == "demo" and not settings.enable_portfolio_demo:
+        raise HTTPException(status_code=404, detail="Portfolio Demo is disabled")
     query = select(Recall)
     if source:
         if source == "live":
             query = query.where(Recall.source == "openfda")
         elif source == "demo":
-            if not settings.enable_demo_recall_seed:
-                query = query.where(Recall.source == "openfda")
-            else:
-                query = query.where(Recall.source == "demo")
+            query = query.where(Recall.source == "demo")
         else:
             query = query.where(Recall.source == source)
     else:
@@ -104,8 +112,16 @@ async def list_recalls(
 
 
 @router.get("/{recall_id}", response_model=RecallDetail)
-async def get_recall(recall_id: uuid.UUID, session: AsyncSession = Depends(get_session)) -> RecallDetail:
-    recall = await session.scalar(select(Recall).where(Recall.id == recall_id))
+async def get_recall(
+    recall_id: uuid.UUID,
+    source: str | None = None,
+    session: AsyncSession = Depends(get_session),
+) -> RecallDetail:
+    source_filter = "demo" if source == "demo" else "openfda" if source else None
+    recall_query = select(Recall).where(Recall.id == recall_id)
+    if source_filter:
+        recall_query = recall_query.where(Recall.source == source_filter)
+    recall = await session.scalar(recall_query)
     if not recall:
         raise HTTPException(status_code=404, detail="Recall not found")
     match_count = await session.scalar(select(func.count(RecallMatch.id)).where(RecallMatch.recall_id == recall.id))
@@ -121,12 +137,22 @@ async def get_recall(recall_id: uuid.UUID, session: AsyncSession = Depends(get_s
 
 
 @router.get("/{recall_id}/matches")
-async def get_recall_matches(recall_id: uuid.UUID, session: AsyncSession = Depends(get_session)) -> dict:
+async def get_recall_matches(
+    recall_id: uuid.UUID,
+    source: str | None = None,
+    session: AsyncSession = Depends(get_session),
+) -> dict:
+    source_filter = "demo" if source == "demo" else "openfda" if source else None
+    match_query = (
+        select(RecallMatch)
+        .options(selectinload(RecallMatch.inventory_item), selectinload(RecallMatch.recall))
+        .where(RecallMatch.recall_id == recall_id)
+    )
+    if source_filter:
+        match_query = match_query.join(Recall).where(Recall.source == source_filter)
     matches = (
         await session.scalars(
-            select(RecallMatch)
-            .options(selectinload(RecallMatch.inventory_item), selectinload(RecallMatch.recall))
-            .where(RecallMatch.recall_id == recall_id)
+            match_query
             .order_by(RecallMatch.score.desc())
         )
     ).all()

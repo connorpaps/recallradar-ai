@@ -4,7 +4,8 @@ import { CompanySelector } from "@/components/company-selector";
 import { InventoryUpload } from "@/components/inventory-upload";
 import { getDemoCompanies, getInventory } from "@/lib/api";
 
-export default async function InventoryPage() {
+export default async function InventoryPage({ searchParams }: { searchParams: Promise<{ source?: string }> }) {
+  const source = (await searchParams).source === "demo" ? "demo" : "openfda";
   const [inventory, companies] = await Promise.all([getInventory(), getDemoCompanies()]);
   const locations = new Set(inventory.items.map((item) => item.location).filter(Boolean)).size;
   const suppliers = new Set(inventory.items.map((item) => item.supplier).filter(Boolean)).size;
@@ -33,7 +34,7 @@ export default async function InventoryPage() {
         </div>
       </CommandHeader>
       <CompanySelector companies={companies} selectedCompanyId={currentCompany?.demo_company_id ?? null} />
-      <InventoryUpload />
+      <InventoryUpload source={source} />
       <div className="panel overflow-hidden">
         <div className="border-b border-slate-200 bg-field px-5 py-4">
           <h2 className="font-black">Stock ledger</h2>

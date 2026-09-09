@@ -225,6 +225,14 @@ Query parameters:
 
 Returns inventory item detail and related matches.
 
+### POST /demo/portfolio
+
+Loads the deterministic Portfolio Demo scenario, including ten synthetic recalls, MetroMart Grocery inventory, and the release-threshold match run. This endpoint is intentionally separate from live openFDA import.
+
+The operation is idempotent for the MetroMart demo workspace. It never deletes uploaded inventory, matches, or human-review history. If customer-uploaded inventory or another demo company is present, it returns `409 Conflict` rather than replacing that state.
+
+Response includes `mode`, recall and inventory counts, match counts, and the selected demo company.
+
 ## 6. Matching Endpoints
 
 ### POST /matches/run
@@ -237,7 +245,8 @@ Request:
 {
   "recall_id": null,
   "inventory_upload_id": null,
-  "min_score": 0.35
+  "min_score": 0.5,
+  "recall_source": "openfda"
 }
 ```
 
@@ -261,6 +270,7 @@ Query parameters:
 - `confidence`
 - `recall_id`
 - `inventory_item_id`
+- `recall_source`: `openfda` or `demo`
 - `min_score`
 - `page`
 - `page_size`

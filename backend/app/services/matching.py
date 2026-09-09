@@ -4,8 +4,7 @@ from decimal import Decimal
 from typing import Any
 
 from rapidfuzz import fuzz
-from sqlalchemy import and_, func, select
-from sqlalchemy.dialects.postgresql import insert
+from sqlalchemy import and_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -193,14 +192,15 @@ async def run_matching(
     session: AsyncSession,
     recall_id: Any | None = None,
     inventory_upload_id: Any | None = None,
-    min_score: float = 0.35,
+    min_score: float = 0.50,
     recall_source: str | None = "openfda",
+    deterministic: bool = False,
 ) -> dict[str, int]:
     recall_query = select(Recall)
     inventory_query = select(InventoryItem).where(InventoryItem.active.is_(True))
     if recall_id:
         recall_query = recall_query.where(Recall.id == recall_id)
-    elif recall_source:
+    if recall_source:
         recall_query = recall_query.where(Recall.source == recall_source)
     if inventory_upload_id:
         inventory_query = inventory_query.where(InventoryItem.uploaded_file_id == inventory_upload_id)
@@ -211,7 +211,7 @@ async def run_matching(
     skipped = 0
     for recall in recalls:
         for item in items:
-            result = await score_recall_inventory_with_ai(session, recall, item)
+            result = score_recall_inventory(recall, item) if deterministic else await score_recall_inventory_with_ai(session, recall, item)
             if result["score"] < min_score:
                 skipped += 1
                 continue

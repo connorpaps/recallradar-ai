@@ -11,7 +11,8 @@ const steps = [
   { title: "Review exposure", detail: "Confirm, dismiss, resolve, or reopen live-recall exposure evidence.", icon: CheckCircle2, tone: "Review" },
 ];
 
-export default async function ImportsPage() {
+export default async function ImportsPage({ searchParams }: { searchParams: Promise<{ source?: string }> }) {
+  const source = (await searchParams).source === "demo" ? "demo" : "openfda";
   const [companies, inventory, importStatus] = await Promise.all([getDemoCompanies(), getInventory(), getImportStatus()]);
   const currentCompany = inventory.items.find((item) => item.demo_company_id);
 
@@ -22,7 +23,7 @@ export default async function ImportsPage() {
         title="Live data operations"
         description="A guided setup console for live openFDA recall imports, company inventory, and exposure matching."
       />
-      <ActionBar companies={companies} selectedCompanyId={currentCompany?.demo_company_id ?? null} importStatus={importStatus} />
+      <ActionBar companies={companies} selectedCompanyId={currentCompany?.demo_company_id ?? null} importStatus={importStatus} source={source} />
       <CompanySelector companies={companies} selectedCompanyId={currentCompany?.demo_company_id ?? null} />
       <section className="grid gap-4 lg:grid-cols-4">
         {steps.map((step, index) => {

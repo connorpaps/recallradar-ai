@@ -9,7 +9,7 @@ from fastapi.responses import JSONResponse
 from app.config import get_settings
 from app.db.models import Base
 from app.db.session import engine
-from app.routers import audit, dashboard, inventory, matches, recalls
+from app.routers import audit, dashboard, demo, inventory, matches, recalls
 from app.security import InMemoryRateLimiter, client_key, rate_limit_bucket
 
 logger = logging.getLogger(__name__)
@@ -47,6 +47,7 @@ app.include_router(inventory.router)
 app.include_router(matches.router)
 app.include_router(dashboard.router)
 app.include_router(audit.router)
+app.include_router(demo.router)
 
 
 @app.middleware("http")

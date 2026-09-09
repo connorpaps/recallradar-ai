@@ -185,6 +185,16 @@ class SeedSummary(BaseModel):
     created: int
 
 
+class PortfolioDemoResponse(BaseModel):
+    mode: str
+    recalls_created: int
+    inventory_created: int
+    matches_created: int
+    matches_updated: int
+    matches_skipped: int
+    company: DemoCompanyOut
+
+
 class UploadError(BaseModel):
     row: int
     message: str
@@ -201,7 +211,7 @@ class InventoryUploadResponse(BaseModel):
 class MatchRunRequest(BaseModel):
     recall_id: uuid.UUID | None = None
     inventory_upload_id: uuid.UUID | None = None
-    min_score: float = Field(default=0.35, ge=0, le=1)
+    min_score: float = Field(default=0.50, ge=0, le=1)
     recall_source: str = Field(default="openfda", min_length=1, max_length=40)
 
 

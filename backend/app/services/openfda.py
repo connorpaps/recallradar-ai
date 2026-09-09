@@ -5,8 +5,8 @@ import httpx
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.config import get_settings
 from app.ai.provider import ai_provider
+from app.config import get_settings
 from app.db.models import AuditEvent, ImportStatus, Recall
 from app.services.model_runs import record_ai_result
 from app.services.text import normalize_brand, normalize_text, parse_openfda_date, summarize_recall
@@ -90,7 +90,7 @@ async def import_openfda_recalls(session: AsyncSession, limit: int, since: date 
     skipped = 0
     try:
         records = await fetch_openfda_recalls(limit, since)
-    except Exception as exc:
+    except Exception:
         logger.exception("openFDA import failed")
         status.status = "failed"
         status.error = "openFDA refresh failed"

@@ -12,6 +12,7 @@ backend/recallradar.db
 frontend/playwright-report/
 frontend/test-results/
 frontend/tmp-*.png
+frontend/tsconfig.tsbuildinfo
 *.pyc
 *.log
 storage/

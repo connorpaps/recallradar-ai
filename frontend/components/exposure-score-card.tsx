@@ -33,7 +33,7 @@ export function ExposureScoreCard({
         <span className="rounded-full bg-red-50 px-3 py-1 text-xs font-black text-red-700">{urgent} urgent</span>
       </div>
       <div className="mt-5">
-        <SignalMeter label="Portfolio demo pressure" value={exposure} tone={highConfidence ? "red" : "amber"} />
+        <SignalMeter label="Current review pressure" value={exposure} tone={highConfidence ? "red" : "amber"} />
       </div>
       <div className="mt-5 grid gap-3 sm:grid-cols-2">
         {metrics.map((metric) => (

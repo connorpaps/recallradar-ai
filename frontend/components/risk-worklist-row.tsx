@@ -10,12 +10,12 @@ const railByConfidence: Record<string, string> = {
   low: "bg-moss",
 };
 
-export function RiskWorklistRow({ recall }: { recall: Recall }) {
+export function RiskWorklistRow({ recall, source }: { recall: Recall; source: string }) {
   const rail = railByConfidence[recall.highest_confidence ?? ""] ?? "bg-slate-300";
 
   return (
     <Link
-      href={`/recalls/${recall.id}`}
+      href={`/recalls/${recall.id}?source=${source}`}
       className="group grid gap-4 border-b border-slate-100 bg-white px-4 py-4 transition hover:bg-field md:grid-cols-[1fr_9rem_8rem_7rem]"
     >
       <div className="flex gap-4">

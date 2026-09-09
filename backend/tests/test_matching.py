@@ -1,15 +1,20 @@
 from decimal import Decimal
 
 import pytest
+from sqlalchemy import func, select
+from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
 from app.ai.provider import AiResult
 from app.db.models import Base, InventoryItem, Recall, RecallMatch
 from app.services import matching
-from app.services.matching import confidence_for_score, run_matching, score_recall_inventory, score_recall_inventory_with_ai
+from app.services.matching import (
+    confidence_for_score,
+    run_matching,
+    score_recall_inventory,
+    score_recall_inventory_with_ai,
+)
 from app.services.risk_policy import calculate_exposure, exposure_level_for_score
 from app.services.text import normalize_brand, normalize_text
-from sqlalchemy import func, select
-from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
 
 def make_recall() -> Recall:
@@ -168,3 +173,30 @@ async def test_run_matching_defaults_to_live_recalls(db_session) -> None:
 
     assert result["created"] == 1
     assert await db_session.scalar(select(func.count(RecallMatch.id))) == 1
+
+
+@pytest.mark.asyncio
+async def test_run_matching_targeted_recall_enforces_source(db_session) -> None:
+    demo_recall = make_recall()
+    demo_recall.source = "demo"
+    demo_recall.source_recall_id = "DEMO-TARGETED-001"
+    item = InventoryItem(
+        product_name="Fresh Valley Organic Spinach",
+        brand="Fresh Valley",
+        quantity=Decimal("12"),
+        normalized_product_name=normalize_text("Fresh Valley Organic Spinach"),
+        normalized_brand=normalize_brand("Fresh Valley"),
+        raw_row={},
+    )
+    db_session.add_all([demo_recall, item])
+    await db_session.commit()
+
+    result = await run_matching(
+        db_session,
+        recall_id=demo_recall.id,
+        recall_source="openfda",
+        deterministic=True,
+    )
+
+    assert result["created"] == 0
+    assert await db_session.scalar(select(func.count(RecallMatch.id))) == 0

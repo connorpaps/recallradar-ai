@@ -9,7 +9,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.config import get_settings
 from app.db.models import InventoryItem
 from app.db.session import get_session
-from app.schemas import DemoCompanyOut, InventoryItemOut, InventoryUploadResponse, SeedCompanyRequest, SeedCompanyResponse, SeedSummary
+from app.schemas import (
+    DemoCompanyOut,
+    InventoryItemOut,
+    InventoryUploadResponse,
+    SeedCompanyRequest,
+    SeedCompanyResponse,
+    SeedSummary,
+)
 from app.services.inventory import import_inventory_csv
 from app.services.seed import list_demo_companies, seed_company_inventory, seed_inventory
 
@@ -35,6 +42,8 @@ async def seed_demo_company_inventory(
         result = await seed_company_inventory(session, request.company_id)
     except LookupError as exc:
         raise HTTPException(status_code=404, detail="Demo company not found") from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
     return SeedCompanyResponse(**result)
 
 

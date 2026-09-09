@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Building2, Play, RefreshCcw } from "lucide-react";
+import { Building2, Play, RefreshCcw, Sparkles } from "lucide-react";
 import { postJson } from "@/lib/api";
 import type { DemoCompany, ImportStatus } from "@/types/api";
 
@@ -12,6 +12,9 @@ type OperationResult = {
   updated?: number;
   skipped?: number;
   company?: DemoCompany;
+  matches_created?: number;
+  high_confidence_matches?: number;
+  medium_confidence_matches?: number;
 };
 
 function formatRefreshTime(value?: string | null): string {
@@ -33,10 +36,12 @@ export function ActionBar({
   companies = [],
   selectedCompanyId,
   importStatus,
+  source = "openfda",
 }: {
   companies?: DemoCompany[];
   selectedCompanyId?: string | null;
   importStatus?: ImportStatus | null;
+  source?: "openfda" | "demo";
 }) {
   const router = useRouter();
   const [message, setMessage] = useState<string>("");
@@ -70,6 +75,7 @@ export function ActionBar({
       values.imported !== undefined ? `${values.imported} imported` : "",
       values.updated !== undefined ? `${values.updated} updated` : "",
       values.skipped !== undefined ? `${values.skipped} skipped` : "",
+      values.matches_created !== undefined ? `${values.matches_created} matches` : "",
     ].filter(Boolean).join(" / ");
   }
 
@@ -111,13 +117,20 @@ export function ActionBar({
     <div className="mb-6 flex flex-col gap-4 rounded-3xl border border-white/70 bg-white/85 p-4 shadow-soft backdrop-blur md:flex-row md:items-center md:justify-between">
       <div>
         <p className="text-sm font-black text-ink">Operations command center</p>
-        <p className="mt-1 text-xs font-semibold text-slate-500">{message || "Refresh live openFDA recalls, choose company inventory, and run matching from one place."}</p>
+        <p className="mt-1 text-xs font-semibold text-slate-500">{message || "Choose a data mode, load inventory, and run reviewable matching from one place."}</p>
         <p className={`mt-1 text-xs font-black ${liveStatus === "failed" ? "text-red-600" : liveStatus === "running" ? "text-amber-600" : "text-moss"}`}>{liveStatusText}</p>
         {lastResult ? <p className="mt-1 text-xs font-black text-moss">{lastResult}</p> : null}
       </div>
       <div className="flex flex-wrap items-center gap-2">
         <button disabled={isBusy} onClick={() => run("Importing FDA recalls", () => postJson("/recalls/import/openfda", { limit: 50, force: true }))} className="btn-secondary">
           <RefreshCcw className="h-4 w-4" /> Live FDA import
+        </button>
+        <button disabled={isBusy} onClick={() => run("Loading portfolio demo", async () => {
+          const result = await postJson("/demo/portfolio", {});
+          router.push("/?source=demo");
+          return result;
+        })} className="btn-secondary">
+          <Sparkles className="h-4 w-4" /> Portfolio demo
         </button>
         <label className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm font-bold text-ink shadow-sm">
           <Building2 className="h-4 w-4 text-moss" />
@@ -132,7 +145,7 @@ export function ActionBar({
             {companies.map((company) => <option key={company.id} value={company.id}>{company.name}</option>)}
           </select>
         </label>
-        <button disabled={isBusy} onClick={() => run("Running matching", () => postJson("/matches/run", { min_score: 0.35 }))} className="btn-primary">
+        <button disabled={isBusy} onClick={() => run("Running matching", () => postJson("/matches/run", { min_score: 0.5, recall_source: source }))} className="btn-primary">
           <Play className="h-4 w-4" /> Run matching
         </button>
       </div>

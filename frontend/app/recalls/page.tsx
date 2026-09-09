@@ -5,9 +5,10 @@ import { getRecalls } from "@/lib/api";
 
 export default async function RecallsPage({ searchParams }: { searchParams: Promise<{ source?: string; classification?: string; has_matches?: string }> }) {
   const filters = await searchParams;
-  const recalls = await getRecalls(filters);
+  const source = filters.source === "demo" ? "demo" : "openfda";
+  const recalls = await getRecalls({ ...filters, source });
   const exposed = recalls.items.filter((recall) => recall.match_count > 0).length;
-  const live = recalls.items.filter((recall) => recall.source === "openfda").length;
+  const sourceCount = recalls.items.filter((recall) => recall.source === source).length;
 
   return (
     <div className="flex flex-col gap-6">
@@ -26,8 +27,8 @@ export default async function RecallsPage({ searchParams }: { searchParams: Prom
             <div className="text-xs font-bold uppercase tracking-wide text-emerald-50/60">with exposure</div>
           </div>
           <div className="rounded-2xl border border-white/10 bg-white/10 p-4">
-            <div className="text-3xl font-black">{live}</div>
-            <div className="text-xs font-bold uppercase tracking-wide text-emerald-50/60">live openFDA</div>
+            <div className="text-3xl font-black">{sourceCount}</div>
+            <div className="text-xs font-bold uppercase tracking-wide text-emerald-50/60">{source === "demo" ? "portfolio demo" : "live openFDA"}</div>
           </div>
         </div>
       </CommandHeader>
@@ -39,10 +40,10 @@ export default async function RecallsPage({ searchParams }: { searchParams: Prom
             <p className="text-sm text-slate-500">Rows are marked by highest confidence exposure signal.</p>
           </div>
           <div className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-black uppercase tracking-wide text-slate-500">
-            Live queue
+            {source === "demo" ? "Portfolio demo queue" : "Live queue"}
           </div>
         </div>
-        {recalls.items.map((recall) => <RiskWorklistRow key={recall.id} recall={recall} />)}
+        {recalls.items.map((recall) => <RiskWorklistRow key={recall.id} recall={recall} source={source} />)}
       </div>
     </div>
   );

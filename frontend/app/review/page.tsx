@@ -15,17 +15,17 @@ const laneMeta = {
   low: { title: "Watchlist", color: "border-slate-200 bg-slate-50 text-slate-700" },
 };
 
-function MatchCard({ match }: { match: RecallMatch }) {
+function MatchCard({ match, source }: { match: RecallMatch; source: "openfda" | "demo" }) {
   return (
     <article className="rounded-[1.5rem] border border-slate-200 bg-white p-4 shadow-sm">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <Link href={`/recalls/${match.recall_id}`} className="font-black leading-snug hover:underline">
+          <Link href={`/recalls/${match.recall_id}?source=${source}`} className="font-black leading-snug hover:underline">
             {match.inventory_item?.product_name}
           </Link>
           <p className="mt-2 text-sm leading-6 text-slate-600">{match.explanation}</p>
         </div>
-        <Link href={`/recalls/${match.recall_id}`} className="rounded-full border border-slate-200 bg-field p-2 text-slate-600 transition hover:bg-white" aria-label="Open recall">
+        <Link href={`/recalls/${match.recall_id}?source=${source}`} className="rounded-full border border-slate-200 bg-field p-2 text-slate-600 transition hover:bg-white" aria-label="Open recall">
           <ArrowUpRight className="h-4 w-4" />
         </Link>
       </div>
@@ -46,8 +46,9 @@ function MatchCard({ match }: { match: RecallMatch }) {
   );
 }
 
-export default async function ReviewPage() {
-  const matches = await getMatches("needs_review");
+export default async function ReviewPage({ searchParams }: { searchParams: Promise<{ source?: string }> }) {
+  const source = (await searchParams).source === "demo" ? "demo" : "openfda";
+  const matches = await getMatches("needs_review", source);
   const lanes = (["high", "medium", "low"] as const).map((confidence) => ({
     confidence,
     items: matches.items.filter((match) => match.confidence === confidence),
@@ -58,7 +59,7 @@ export default async function ReviewPage() {
       <CommandHeader
         eyebrow="Human review"
         title="Evidence triage queue"
-        description="A lane-based decision desk for confirming, dismissing, or resolving possible recall exposure before it becomes an operational incident."
+        description={`${source === "demo" ? "A deterministic portfolio scenario with labeled examples." : "A lane-based decision desk for confirming, dismissing, or resolving possible recall exposure before it becomes an operational incident."} Match confidence indicates likelihood; exposure indicates operational urgency.`}
       >
         <div className="grid gap-3 md:grid-cols-3">
           <div className="rounded-2xl border border-white/10 bg-white/10 p-4">
@@ -90,7 +91,7 @@ export default async function ReviewPage() {
                 </span>
               </div>
               <div className="flex flex-col gap-4 p-4">
-                {lane.items.length ? lane.items.map((match) => <MatchCard key={match.id} match={match} />) : (
+                {lane.items.length ? lane.items.map((match) => <MatchCard key={match.id} match={match} source={source} />) : (
                   <div className="rounded-2xl border border-dashed border-slate-200 bg-white p-5 text-sm font-semibold text-slate-500">No cases in this lane.</div>
                 )}
               </div>
@@ -98,7 +99,7 @@ export default async function ReviewPage() {
           ))}
         </section>
       ) : (
-        <EmptyCommandState message="No items need review. Import live FDA recalls and run matching to populate this queue." />
+        <EmptyCommandState message={source === "demo" ? "Load the portfolio demo to populate labeled review evidence." : "No items need review. Import live FDA recalls and run matching to populate this queue."} />
       )}
     </div>
   );

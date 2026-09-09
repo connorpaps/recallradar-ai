@@ -10,9 +10,10 @@ import { SignalMeter } from "@/components/signal-meter";
 import { getRecall, getRecallMatches } from "@/lib/api";
 import { formatDate, formatExposure, formatScore } from "@/lib/utils";
 
-export default async function RecallDetailPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function RecallDetailPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ source?: string }> }) {
   const { id } = await params;
-  const [recall, matches] = await Promise.all([getRecall(id), getRecallMatches(id)]);
+  const source = (await searchParams).source === "demo" ? "demo" : "openfda";
+  const [recall, matches] = await Promise.all([getRecall(id, source), getRecallMatches(id, source)]);
   const topMatch = matches.items[0];
   const hasSemanticSignal = matches.items.some((match) => match.signals.some((signal) => signal.name === "semantic_similarity"));
 

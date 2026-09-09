@@ -10,16 +10,21 @@ import { getDashboard, getDemoCompanies, getImportStatus } from "@/lib/api";
 import { formatDate, formatExposure } from "@/lib/utils";
 import Link from "next/link";
 
-export default async function DashboardPage() {
-  const [dashboard, companies, importStatus] = await Promise.all([getDashboard(), getDemoCompanies(), getImportStatus()]);
+export default async function DashboardPage({ searchParams }: { searchParams: Promise<{ source?: string }> }) {
+  const source = (await searchParams).source === "demo" ? "demo" : "openfda";
+  const [dashboard, companies, importStatus] = await Promise.all([getDashboard(source), getDemoCompanies(), getImportStatus()]);
+  const isDemo = source === "demo";
+  const queueHref = isDemo ? "/review?source=demo" : "/review";
+  const recallCount = dashboard.recall_source_counts[source] ?? 0;
 
   return (
     <div>
-      <ActionBar companies={companies} selectedCompanyId={dashboard.current_inventory_company?.id ?? null} importStatus={importStatus} />
+      <ActionBar companies={companies} selectedCompanyId={dashboard.current_inventory_company?.id ?? null} importStatus={importStatus} source={source} />
+      {isDemo ? <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-black text-amber-900">Portfolio demo mode · {recallCount} demo recalls · {dashboard.matches_by_confidence.high ?? 0} high-confidence · {dashboard.matches_by_confidence.medium ?? 0} medium-confidence</div> : null}
       <CommandHeader
         eyebrow="Recall operations"
         title="Food safety intelligence, on command."
-        description={`A decision desk for imported recall notices, local stock exposure, confidence-scored evidence, and human resolution.${dashboard.current_inventory_company?.name ? ` Current inventory: ${dashboard.current_inventory_company.name}.` : ""}`}
+        description={`${isDemo ? "A deterministic, labeled portfolio scenario for demonstrating the review workflow." : "A decision desk for imported recall notices, local stock exposure, confidence-scored evidence, and human resolution."}${dashboard.current_inventory_company?.name ? ` Current inventory: ${dashboard.current_inventory_company.name}.` : ""}`}
       />
       <section className="mt-6 grid gap-3 md:grid-cols-3">
         <div className="rounded-3xl border border-white/70 bg-white/85 p-4 shadow-soft">
@@ -28,17 +33,17 @@ export default async function DashboardPage() {
           <div className="mt-1 text-xs font-semibold text-slate-500">{dashboard.current_inventory_company?.item_count ?? dashboard.inventory_items} stock rows</div>
         </div>
         <div className="rounded-3xl border border-emerald-100 bg-emerald-50 p-4 shadow-soft">
-          <div className="text-xs font-black uppercase tracking-wide text-emerald-700">Live openFDA recalls</div>
-          <div className="mt-1 text-3xl font-black text-emerald-900">{dashboard.recall_source_counts.openfda ?? 0}</div>
+          <div className="text-xs font-black uppercase tracking-wide text-emerald-700">{isDemo ? "Portfolio demo recalls" : "Live openFDA recalls"}</div>
+          <div className="mt-1 text-3xl font-black text-emerald-900">{recallCount}</div>
         </div>
         <div className="rounded-3xl border border-slate-200 bg-white p-4 shadow-soft">
-          <div className="text-xs font-black uppercase tracking-wide text-slate-400">Live refresh</div>
-          <div className="mt-1 text-lg font-black">Auto-loaded</div>
-          <div className="mt-1 text-xs font-semibold text-slate-500">Latest FDA data loads on page refresh</div>
+          <div className="text-xs font-black uppercase tracking-wide text-slate-400">{isDemo ? "Evidence contract" : "Live refresh"}</div>
+          <div className="mt-1 text-lg font-black">{isDemo ? "Repeatable fixture" : "Auto-loaded"}</div>
+          <div className="mt-1 text-xs font-semibold text-slate-500">{isDemo ? "Known matches are labeled and scored for portfolio review." : "Latest FDA data loads on page refresh"}</div>
         </div>
       </section>
       <section className="mt-6 grid gap-5 xl:grid-cols-[minmax(0,1fr)_23rem]">
-        <RiskRadar matches={dashboard.high_risk_matches} totalReviews={dashboard.matches_needing_review} />
+        <RiskRadar matches={dashboard.high_risk_matches} totalReviews={dashboard.matches_needing_review} source={source} />
         <div className="flex flex-col gap-5">
           <ExposureScoreCard
             activeRecalls={dashboard.active_recalls}
@@ -55,15 +60,15 @@ export default async function DashboardPage() {
           <div className="flex items-center justify-between gap-3 border-b border-slate-200 p-5">
             <div>
               <h2 className="text-xl font-black">Priority action queue</h2>
-              <p className="text-sm text-slate-500">High-confidence inventory exposure sorted for immediate review.</p>
+              <p className="text-sm text-slate-500">Possible candidates sorted by operational exposure. Match confidence and urgency are separate signals.</p>
             </div>
-            <Link href="/review" className="btn-secondary text-xs">
+            <Link href={queueHref} className="btn-secondary text-xs">
               Open queue <ArrowUpRight className="h-3.5 w-3.5" />
             </Link>
           </div>
           <div className="divide-y divide-slate-100">
             {dashboard.high_risk_matches.length ? dashboard.high_risk_matches.map((match) => (
-              <Link key={match.id} href={`/recalls/${match.recall_id}`} className="group grid gap-4 p-5 transition hover:bg-field lg:grid-cols-[1fr_12rem]">
+              <Link key={match.id} href={`/recalls/${match.recall_id}${isDemo ? "?source=demo" : ""}`} className="group grid gap-4 p-5 transition hover:bg-field lg:grid-cols-[1fr_12rem]">
                 <div className="flex gap-4">
                   <div className="mt-1 h-14 w-1.5 rounded-full bg-red-500 shadow-lg shadow-red-500/20" />
                   <div>
@@ -89,7 +94,7 @@ export default async function DashboardPage() {
                 </div>
               </Link>
             )) : (
-              <EmptyCommandState message="Import live FDA recalls and run matching to populate the priority queue." />
+              <EmptyCommandState message={isDemo ? "Load the portfolio demo to populate labeled review evidence." : "Import live FDA recalls and run matching to populate the priority queue."} />
             )}
           </div>
         </div>

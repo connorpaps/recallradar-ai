@@ -5,10 +5,16 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from app.db.models import RecallMatch
-from app.db.models import Recall
+from app.db.models import Recall, RecallMatch
 from app.db.session import get_session
-from app.schemas import MatchList, MatchRunRequest, MatchRunResponse, MatchStatusRequest, MatchStatusResponse, RecallMatchOut
+from app.schemas import (
+    MatchList,
+    MatchRunRequest,
+    MatchRunResponse,
+    MatchStatusRequest,
+    MatchStatusResponse,
+    RecallMatchOut,
+)
 from app.services.matching import get_match_with_relations, run_matching, update_match_status
 
 router = APIRouter(prefix="/matches", tags=["matches"])

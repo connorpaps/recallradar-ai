@@ -6,31 +6,32 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "eslint .",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui"
   },
   "dependencies": {
     "clsx": "^2.1.1",
     "lucide-react": "^0.468.0",
-    "next": "15.5.21",
+    "next": "15.5.25",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },
   "overrides": {
     "postcss": "^8.5.22",
-    "sharp": "^0.35.3"
+    "sharp": "^0.35.4"
   },
   "devDependencies": {
+    "@eslint/eslintrc": "^3.3.7",
+    "@playwright/test": "^1.55.0",
     "@types/node": "^22.10.5",
     "@types/react": "^19.0.4",
     "@types/react-dom": "^19.0.2",
-    "eslint": "^9.17.0",
-    "eslint-config-next": "15.5.21",
     "autoprefixer": "^10.4.20",
+    "eslint": "^9.17.0",
+    "eslint-config-next": "15.5.25",
     "postcss": "^8.5.22",
     "tailwindcss": "^3.4.17",
-    "typescript": "^5.7.2",
-    "@playwright/test": "^1.55.0"
+    "typescript": "^5.7.2"
   }
 }

@@ -1,17 +1,30 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { getImportStatus, postJson } from "@/lib/api";
 
 export function LiveDataBootstrap() {
   const router = useRouter();
   const pathname = usePathname();
-  const didRun = useRef(false);
+  const [mode, setMode] = useState<"demo" | "live">(() => (
+    typeof window !== "undefined" && new URLSearchParams(window.location.search).get("source") === "demo" ? "demo" : "live"
+  ));
 
   useEffect(() => {
-    if (didRun.current) return;
-    didRun.current = true;
+    const syncMode = () => setMode(new URLSearchParams(window.location.search).get("source") === "demo" ? "demo" : "live");
+    syncMode();
+    window.addEventListener("popstate", syncMode);
+    window.addEventListener("recallradar:url-change", syncMode);
+    return () => {
+      window.removeEventListener("popstate", syncMode);
+      window.removeEventListener("recallradar:url-change", syncMode);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (process.env.NEXT_PUBLIC_ENABLE_LIVE_REFRESH === "false") return;
+    if (mode === "demo") return;
 
     getImportStatus()
       .then(async (status) => {
@@ -28,7 +41,7 @@ export function LiveDataBootstrap() {
       .catch((error) => {
         window.dispatchEvent(new CustomEvent("recallradar:import-status", { detail: { status: "failed", error: error instanceof Error ? error.message : "Live import failed." } }));
       });
-  }, [pathname, router]);
+  }, [mode, pathname, router]);
 
   return null;
 }

@@ -2,7 +2,6 @@ from functools import lru_cache
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-
 PORTFOLIO_FRONTEND_ORIGIN = "https://recallradar-ai.vercel.app"
 
 
@@ -28,6 +27,7 @@ class Settings(BaseSettings):
     enable_semantic_matching: bool = False
     enable_ai_summaries: bool = False
     enable_demo_recall_seed: bool = False
+    enable_portfolio_demo: bool = True
 
     model_config = SettingsConfigDict(env_file="../.env", env_file_encoding="utf-8", extra="ignore")
 

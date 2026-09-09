@@ -9,13 +9,20 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     headers: init?.body instanceof FormData ? init.headers : { "Content-Type": "application/json", ...init?.headers },
   });
   if (!response.ok) {
-    throw new Error(await response.text());
+    const body = await response.text();
+    try {
+      const parsed = JSON.parse(body) as { detail?: string };
+      throw new Error(parsed.detail || body);
+    } catch (error) {
+      if (error instanceof SyntaxError) throw new Error(body);
+      throw error;
+    }
   }
   return response.json();
 }
 
-export async function getDashboard(): Promise<DashboardSummary> {
-  return request<DashboardSummary>("/dashboard/summary");
+export async function getDashboard(source: "openfda" | "demo" = "openfda"): Promise<DashboardSummary> {
+  return request<DashboardSummary>(`/dashboard/summary?source=${source}`);
 }
 
 export async function getRecalls(filters?: { source?: string; classification?: string; has_matches?: string }): Promise<{ items: Recall[]; total: number }> {
@@ -27,17 +34,27 @@ export async function getRecalls(filters?: { source?: string; classification?: s
   return request<{ items: Recall[]; total: number }>(`/recalls?${params.toString()}`);
 }
 
-export async function getRecall(id: string): Promise<RecallDetail> {
-  return request<RecallDetail>(`/recalls/${id}`);
+export async function getRecall(id: string, source?: "openfda" | "demo"): Promise<RecallDetail> {
+  return request<RecallDetail>(`/recalls/${id}${source ? `?source=${source}` : ""}`);
 }
 
-export async function getRecallMatches(id: string): Promise<{ items: RecallMatch[] }> {
-  return request<{ items: RecallMatch[] }>(`/recalls/${id}/matches`);
+export async function getRecallMatches(id: string, source?: "openfda" | "demo"): Promise<{ items: RecallMatch[] }> {
+  return request<{ items: RecallMatch[] }>(`/recalls/${id}/matches${source ? `?source=${source}` : ""}`);
 }
 
-export async function getMatches(status?: string): Promise<{ items: RecallMatch[]; total: number }> {
-  const query = status ? `?status=${status}` : "";
-  return request<{ items: RecallMatch[]; total: number }>(`/matches${query}`);
+export async function getMatches(status?: string, source: "openfda" | "demo" = "openfda"): Promise<{ items: RecallMatch[]; total: number }> {
+  const params = new URLSearchParams({ recall_source: source });
+  if (status) params.set("status", status);
+  return request<{ items: RecallMatch[]; total: number }>(`/matches?${params.toString()}`);
+}
+
+export async function loadPortfolioDemo(): Promise<{
+  mode: string;
+  recalls_created: number;
+  inventory_created: number;
+  matches_created: number;
+}> {
+  return postJson("/demo/portfolio");
 }
 
 export async function getInventory(): Promise<{ items: InventoryItem[]; total: number }> {

@@ -1,9 +1,10 @@
+import os
+
 import pytest
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
-from app.db.models import Base
+from app.db.models import Base, ImportStatus
 from app.services import openfda
-from app.db.models import ImportStatus
 from app.services.openfda import get_openfda_import_status, import_openfda_recalls, serialize_openfda_import_status
 
 
@@ -19,6 +20,7 @@ async def session():
 
 
 @pytest.mark.asyncio
+@pytest.mark.skipif(os.getenv("RUN_LIVE_OPENFDA") != "1", reason="live openFDA checks are opt-in")
 async def test_imports_real_openfda_recalls(session) -> None:
     result = await import_openfda_recalls(session, limit=1, since=None)
     status = serialize_openfda_import_status(await get_openfda_import_status(session))
