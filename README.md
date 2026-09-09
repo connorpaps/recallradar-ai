@@ -33,6 +33,17 @@ This is not just a static dashboard with fake charts.
 - Inventory stays intentionally fictional so the demo is repeatable and safe to show.
 - The deployed app uses a real hosted frontend, backend, and Postgres database.
 
+## AI and Hugging Face Integration
+
+The project was designed around practical Hugging Face inference tasks rather than adding a model as decoration. The release path is deterministic first, with an optional Hugging Face semantic signal available when configured:
+
+- **Feature Extraction:** generate embeddings for recall and inventory text.
+- **Sentence Similarity:** compare those embeddings with cosine similarity.
+- **Human-gated decision support:** use the model score as supporting evidence alongside product, brand, UPC, lot, and distribution signals.
+- **Optional summarization:** generate concise recall summaries when an inference provider and model are configured.
+
+The hosted Portfolio Demo disables external model calls so its results remain repeatable, free to run, and available even when an inference provider is unavailable. The current implementation covers optional semantic similarity and summarization; document QA, entity extraction, and image analysis remain documented roadmap work rather than completed features. See the [Hugging Face task reference](https://huggingface.co/docs/inference-providers/en/tasks/index) and the [AI matching specification](docs/AI_MATCHING_SPEC.md).
+
 ## Data modes and product flow
 
 For the user-facing experience:
@@ -69,6 +80,7 @@ The modes remain visibly separate. Portfolio Demo is not live FDA data.
 - Explainable recall-to-inventory matching.
 - Deterministic Portfolio Demo mode with labeled evaluation fixtures.
 - Repeatable precision/recall evaluation harness.
+- Optional Hugging Face embedding-based semantic similarity.
 - Match confidence and review states.
 - Dashboard with exposure and workload views.
 - Recall case file and review queue workflow.
