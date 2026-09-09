@@ -6,8 +6,8 @@ It pulls live food recall data from openFDA, provides a deterministic Portfolio 
 
 Live deployment:
 
-- Frontend: `https://recallradar-ai.vercel.app`
-- Backend API: `https://backend-inky-rho-68.vercel.app`
+- [Open the frontend demo](https://recallradar-ai.vercel.app)
+- [Check API health](https://backend-inky-rho-68.vercel.app/health)
 
 > **Safety boundary:** This is a no-login, single-workspace portfolio MVP. Use the hosted instance with synthetic demo data only. Do not upload real customer inventory or rely on it for regulatory action until authentication, tenant isolation, access control, retention, and production monitoring are added.
 
@@ -107,7 +107,7 @@ Good companies to use in a demo:
 
 ![RecallRadar AI review queue](docs/screenshots/review-queue.png)
 
-## Production Readiness Pass
+## Engineering Hardening and Verification
 
 Completed before deployment:
 
