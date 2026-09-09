@@ -126,6 +126,8 @@ Completed before deployment:
 
 The local release candidate was verified with backend tests, Ruff, frontend lint/build, Playwright browser coverage, and the deterministic matching evaluator. Hosted availability remains an operational check, not a permanent claim. Run `python scripts/smoke.py --api <api-url> --frontend <frontend-url>` before a public demonstration.
 
+For long-term availability, read the [maintenance guide](docs/MAINTENANCE.md). The keep-warm workflow reduces Render cold starts, but free Render Postgres databases expire after 30 days and GitHub can disable scheduled workflows after 60 days without repository activity. A paid or external persistent database and an independent uptime monitor are required for an unattended hosted demo over multiple months.
+
 ## Stack
 
 - Frontend: Next.js, TypeScript, Tailwind CSS
@@ -137,6 +139,8 @@ The local release candidate was verified with backend tests, Ruff, frontend lint
 - Hosting: Vercel + Render
 
 ## Local Development
+
+For the shortest fresh-clone path, follow the [Getting Started guide](docs/GETTING_STARTED.md). It includes the SQLite quick start, optional PostgreSQL setup, Portfolio Demo walkthrough, troubleshooting, and verification commands.
 
 Start PostgreSQL:
 
@@ -253,6 +257,8 @@ README.md
 ## Documentation
 
 - [Deployment notes](docs/DEPLOYMENT.md)
+- [Getting started](docs/GETTING_STARTED.md)
+- [Maintenance and longevity](docs/MAINTENANCE.md)
 - [Architecture](docs/ARCHITECTURE.md)
 - [API design](docs/API_DESIGN.md)
 - [Data model](docs/DATA_MODEL.md)
