@@ -128,7 +128,7 @@ The local release candidate was verified with backend tests, Ruff, frontend lint
 
 For long-term availability, read the [maintenance guide](docs/MAINTENANCE.md). Vercel Functions and Neon can still scale idle compute down, and GitHub can disable scheduled workflows after 60 days without repository activity. An independent uptime monitor remains useful for an unattended hosted demo over multiple months.
 
-For the recommended free hardening path, follow [Free Hosting Hardening](docs/HOSTING_HARDENING.md) to move persistence to a non-expiring free PostgreSQL provider and add independent uptime monitoring.
+For the current Vercel plus Neon deployment and maintenance notes, see [Free Hosting Hardening](docs/HOSTING_HARDENING.md). Independent uptime monitoring is optional redundancy; the repository already includes a model-free GitHub health workflow.
 
 ## Stack
 
@@ -252,7 +252,7 @@ frontend/
 backend/
 docs/
 docker-compose.yml
-render.yaml
+render.yaml (legacy deployment reference, not used by the current host)
 README.md
 ```
 
