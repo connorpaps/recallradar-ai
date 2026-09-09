@@ -44,6 +44,19 @@ The project was designed around practical Hugging Face inference tasks rather th
 
 The hosted Portfolio Demo disables external model calls so its results remain repeatable, free to run, and available even when an inference provider is unavailable. The current implementation covers optional semantic similarity and summarization; document QA, entity extraction, and image analysis remain documented roadmap work rather than completed features. See the [Hugging Face task reference](https://huggingface.co/docs/inference-providers/en/tasks/index) and the [AI matching specification](docs/AI_MATCHING_SPEC.md).
 
+### Hugging Face task alignment
+
+| Hugging Face task | RecallRadar use | Status |
+| --- | --- | --- |
+| Feature Extraction | Create embeddings for recall and inventory text | Implemented, optional |
+| Sentence Similarity | Add semantic similarity as supporting match evidence | Implemented, optional |
+| Summarization | Produce concise recall summaries | Implemented, optional |
+| Token Classification | Extract brands, products, lot codes, allergens, and regions | Roadmap |
+| Document Question Answering and Visual Document Retrieval | Read invoices, packing slips, and recall notices | Roadmap |
+| Image-to-Text, Object Detection, and Image Feature Extraction | Analyze labels, shelf photos, and package similarity | Roadmap |
+
+The project does not claim to implement the full Hugging Face task catalog. It applies a small, relevant set of NLP tasks to a concrete operations problem, with multimodal extensions identified as future work.
+
 ## Data modes and product flow
 
 For the user-facing experience:
