@@ -1,8 +1,8 @@
-name: Keep Render API warm
+name: Keep Vercel API warm
 
 on:
   schedule:
-    # Render Free services sleep after inactivity; run safely before the 15-minute window.
+    # A lightweight health check helps surface availability problems early.
     - cron: "*/10 * * * *"
   workflow_dispatch:
 
@@ -13,8 +13,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 2
     steps:
-      - name: Ping backend health endpoint
+      - name: Ping Vercel API health endpoint
         run: >-
           curl --fail --silent --show-error --location
           --max-time 45
-          https://recallradar-api.onrender.com/health
+          https://backend-inky-rho-68.vercel.app/health

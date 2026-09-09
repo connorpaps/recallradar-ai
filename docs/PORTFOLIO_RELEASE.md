@@ -75,7 +75,7 @@ This is a polished single-workspace portfolio MVP, not a production food-safety 
 The smoke test is read-only and does not import records or change review state:
 
 ```text
-python scripts/smoke.py --api https://recallradar-api.onrender.com --frontend https://recallradar-ai.vercel.app
+python scripts/smoke.py --api https://backend-inky-rho-68.vercel.app --frontend https://recallradar-ai.vercel.app
 ```
 
 Run it immediately before a public demonstration. Free-tier cold starts may require a generous timeout or a second bounded attempt outside the release claim, but never report a deployment as healthy without a successful response.

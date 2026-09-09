@@ -59,7 +59,7 @@ class Settings(BaseSettings):
         url = self.database_url.replace("postgres://", "postgresql+asyncpg://", 1)
         url = url.replace("postgresql://", "postgresql+asyncpg://", 1)
         parsed = urlsplit(url)
-        query = [(key, value) for key, value in parse_qsl(parsed.query, keep_blank_values=True) if key != "sslmode"]
+        query = [(key, value) for key, value in parse_qsl(parsed.query, keep_blank_values=True) if key not in {"sslmode", "channel_binding"}]
         return urlunsplit(parsed._replace(query=urlencode(query)))
 
     @property

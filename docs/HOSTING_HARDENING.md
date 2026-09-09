@@ -1,81 +1,94 @@
 # Free Hosting Hardening
 
-This guide replaces the expiring Render Free Postgres database with a non-expiring free PostgreSQL provider while keeping the existing Render backend and Vercel frontend.
+RecallRadar uses Vercel for both the frontend and FastAPI API, with Neon Free PostgreSQL for persistent hosted data.
 
-> Use synthetic portfolio data only. Do not migrate real customer data into this unauthenticated MVP.
+> Use synthetic portfolio data only. This unauthenticated MVP is not safe for real customer data.
 
-## Recommended target
+## Hosted architecture
 
 ```text
 Vercel frontend
         |
         v
-Render FastAPI backend
+Vercel FastAPI function
         |
         v
 Neon Free PostgreSQL
 ```
 
-Neon Free is preferable here because its current plan is not time-limited. Compute scales to zero while the database and data remain available. Verify current limits before relying on the service:
+This removes the Render web-service and Render database failure modes. Vercel functions can still cold-start and free-tier quotas or policies can change, so this is a durable portfolio setup, not an uptime guarantee.
 
-<https://neon.com/faqs/managed-postgres-databases-free-tier>
+## Vercel API setup
 
-## One-time provider setup
+The backend is deployed as the Vercel project `backend` and exposes:
 
-1. Create a Neon project in the same broad region as the Render backend.
-2. Copy the pooled PostgreSQL connection string from Neon. Keep it private.
-3. In Render, open the `recallradar-api` service and set `DATABASE_URL` to the Neon connection string.
-4. Redeploy the backend. The Render start command runs `alembic upgrade head` before starting FastAPI.
-5. Run the read-only smoke check:
+- API: `https://backend-inky-rho-68.vercel.app`
+- Health check: `https://backend-inky-rho-68.vercel.app/health`
+
+In the backend Vercel project, configure this variable as a **Secret** for Production:
+
+```text
+DATABASE_URL=<Neon pooled connection string>
+```
+
+Never commit or paste the connection string into GitHub, documentation, screenshots, chat, or issue comments.
+
+In the frontend Vercel project, configure this variable as **Config** for Production and Preview:
+
+```text
+NEXT_PUBLIC_API_BASE_URL=https://backend-inky-rho-68.vercel.app
+```
+
+The frontend value is intentionally public because browsers must call the API. Redeploy the frontend after changing it.
+
+## Verification
+
+Run the read-only smoke check from the repository root:
 
 ```bash
 python scripts/smoke.py \
-  --api https://recallradar-api.onrender.com \
+  --api https://backend-inky-rho-68.vercel.app \
   --frontend https://recallradar-ai.vercel.app
 ```
 
-6. Open the frontend and select **Portfolio demo**. Confirm the synthetic recall and review workflow works.
-7. Only after the new database is verified, remove or cancel the expiring Render Postgres database. Do not delete it first.
+Then open the frontend, select **Portfolio Demo**, and confirm the synthetic recall and review workflow. The deterministic demo can recreate its records in Neon when needed.
 
-Never put the Neon connection string in Git, README files, screenshots, chat, or issue comments. Store it only in Render's environment settings and a password manager.
+## Automated checks and monitoring
 
-## Add independent uptime monitoring
+- GitHub Actions runs CI on pushes and pull requests.
+- A scheduled workflow checks the Vercel API health endpoint.
+- Dependabot proposes monthly dependency updates.
+- Add independent monitors for:
+  - `https://recallradar-ai.vercel.app`
+  - `https://backend-inky-rho-68.vercel.app/health`
 
-Create a free monitor with UptimeRobot, Better Uptime, or another independent provider:
-
-- Monitor 1: `https://recallradar-ai.vercel.app`
-- Monitor 2: `https://recallradar-api.onrender.com/health`
-- Interval: five minutes, or the provider's closest free interval
-- Alert: email notification
-
-This is more reliable than GitHub Actions alone because GitHub can disable scheduled workflows after 60 days without repository activity.
-
-The monitor may wake the Render backend from sleep. A first request can still be slow on the free Render plan, so use a timeout of at least 90 seconds if the monitor supports it.
+Monitoring detects failures but cannot repair a broken deployment. GitHub scheduled workflows may also be disabled after long repository inactivity.
 
 ## What remains best-effort
 
-- Render Free web services can still cold-start after inactivity.
-- Free providers can change quotas or policies.
-- openFDA can be unavailable or change its public data.
-- The app has no production authentication, tenant isolation, backup policy, or SLA.
-- Uptime monitoring detects failure; it does not repair a broken deployment.
+- Vercel functions may cold-start after inactivity.
+- Neon may scale idle compute to zero.
+- Free quotas and provider policies can change.
+- openFDA may be unavailable or change its schema.
+- The hosted app has no production authentication, tenant isolation, backup policy, or SLA.
 
-The deterministic Portfolio Demo and local SQLite quick start ensure that the project remains demonstrable even if the hosted service needs repair.
+The local SQLite quick start and deterministic Portfolio Demo remain the recovery path if hosted services need repair.
 
 ## Monthly check
 
 ```bash
 git pull --ff-only
 python scripts/smoke.py \
-  --api https://recallradar-api.onrender.com \
+  --api https://backend-inky-rho-68.vercel.app \
   --frontend https://recallradar-ai.vercel.app
 ```
 
-Then check the Render, Neon, Vercel, and monitor dashboards for paused services, quota warnings, failed deploys, or database expiry notices.
+Then check Vercel, Neon, GitHub Actions, and independent-monitor dashboards for failed deployments, quota warnings, or paused services.
 
 ## References
 
 - [Getting Started](GETTING_STARTED.md)
 - [Maintenance and longevity](MAINTENANCE.md)
-- [Render free plans](https://render.com/docs/free)
-- [GitHub scheduled workflows](https://docs.github.com/actions/using-workflows/events-that-trigger-workflows)
+- [Vercel FastAPI deployment](https://vercel.com/docs/frameworks/backend/fastapi)
+- [Vercel Hobby plan](https://vercel.com/docs/plans/hobby)
+- [Neon Free plan](https://neon.com/faqs/managed-postgres-databases-free-tier)

@@ -4,7 +4,7 @@
 
 RecallRadar should run as a real hosted portfolio app.
 
-Recommended target: Vercel frontend, Render FastAPI backend, Render managed PostgreSQL.
+Recommended target: Vercel frontend, Vercel FastAPI function, Neon PostgreSQL.
 
 ## 2. Local Development
 
@@ -102,7 +102,7 @@ Vercel frontend:
 
 ```text
 Root directory: frontend
-NEXT_PUBLIC_API_BASE_URL=<Render backend URL>
+NEXT_PUBLIC_API_BASE_URL=https://backend-inky-rho-68.vercel.app
 ```
 
 ## 5. Production Considerations

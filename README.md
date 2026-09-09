@@ -7,7 +7,7 @@ It pulls live food recall data from openFDA, provides a deterministic Portfolio 
 Live deployment:
 
 - Frontend: `https://recallradar-ai.vercel.app`
-- Backend API: `https://recallradar-api.onrender.com`
+- Backend API: `https://backend-inky-rho-68.vercel.app`
 
 > **Safety boundary:** This is a no-login, single-workspace portfolio MVP. Use the hosted instance with synthetic demo data only. Do not upload real customer inventory or rely on it for regulatory action until authentication, tenant isolation, access control, retention, and production monitoring are added.
 
@@ -72,8 +72,8 @@ The modes remain visibly separate. Portfolio Demo is not live FDA data.
 - Match confidence and review states.
 - Dashboard with exposure and workload views.
 - Recall case file and review queue workflow.
-- Production-minded deployment on Vercel + Render + Postgres.
-- Free-tier Render warm-up workflow with a read-only scheduled health check.
+- Production-minded deployment on Vercel + Neon PostgreSQL.
+- Free-tier Vercel health workflow with a read-only scheduled health check.
 
 ## Deployed Demo Walkthrough
 
@@ -112,12 +112,12 @@ Good companies to use in a demo:
 Completed before deployment:
 
 - Deployed frontend to Vercel.
-- Deployed backend to Render.
+- Deployed backend as a Vercel FastAPI function.
 - Moved production persistence to Postgres.
 - Added import status tracking in the database.
 - Added `GET /recalls/imports/status`.
 - Throttled auto-refresh to once every 30 minutes unless manually forced.
-- Added a free GitHub Actions health check every 10 minutes to reduce Render Free cold starts.
+- Added a free GitHub Actions health check every 10 minutes to surface API availability issues.
 - Moved backend CORS to environment configuration.
 - Kept demo recall seeding disabled by default.
 - Added best-effort in-memory rate limits and bounded CSV uploads for the public no-login demo.
@@ -126,7 +126,7 @@ Completed before deployment:
 
 The local release candidate was verified with backend tests, Ruff, frontend lint/build, Playwright browser coverage, and the deterministic matching evaluator. Hosted availability remains an operational check, not a permanent claim. Run `python scripts/smoke.py --api <api-url> --frontend <frontend-url>` before a public demonstration.
 
-For long-term availability, read the [maintenance guide](docs/MAINTENANCE.md). The keep-warm workflow reduces Render cold starts, but free Render Postgres databases expire after 30 days and GitHub can disable scheduled workflows after 60 days without repository activity. A paid or external persistent database and an independent uptime monitor are required for an unattended hosted demo over multiple months.
+For long-term availability, read the [maintenance guide](docs/MAINTENANCE.md). Vercel Functions and Neon can still scale idle compute down, and GitHub can disable scheduled workflows after 60 days without repository activity. An independent uptime monitor remains useful for an unattended hosted demo over multiple months.
 
 For the recommended free hardening path, follow [Free Hosting Hardening](docs/HOSTING_HARDENING.md) to move persistence to a non-expiring free PostgreSQL provider and add independent uptime monitoring.
 
@@ -138,7 +138,7 @@ For the recommended free hardening path, follow [Free Hosting Hardening](docs/HO
 - ORM: SQLAlchemy
 - Migrations: Alembic
 - Testing: pytest, Playwright
-- Hosting: Vercel + Render
+- Hosting: Vercel + Neon
 
 ## Local Development
 
